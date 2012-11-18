@@ -66,12 +66,12 @@ exports.C = C = (func) ->
       nodeToString arg
     args = tmp.join ', '
 
-    output += "#{indent ind}void main(#{args}) {\n"
+    output += "#{indent ind}main(#{args}) {\n"
     tmp2 = for statement in statements
       parseStatement statement, ind + 1
     body = tmp2.join ';\n'
     #output += "void main(args) {\n#{body}\n}\n"
-    output += "#{indent ind}}\n"
+    output += "#{indent ind + 1}return 0;\n}\n"
 
   functionCall = (func, args, ind = 0) ->
     console.log "FUNCTION #{func} with args: #{args}"
