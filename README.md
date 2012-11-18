@@ -92,6 +92,10 @@ src = C(indent: "  ", debug: yes) ->
 
 ## Changelog
 
+#### 0.0.2
+
+ * added some options
+ 
 #### 0.0.1
 
  * Removed debug console.logs
