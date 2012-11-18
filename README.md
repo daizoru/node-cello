@@ -31,7 +31,7 @@ Thank you for your understanding!
 ```coffeescript
 { C } = require 'cello'
 
-src = C -> 
+src = C ->
   include 'stdio.h'
   include 'stdlib.h'
   int x = 40
