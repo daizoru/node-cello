@@ -29,11 +29,11 @@
       <section>
         <h1>node-cello</h1>
 
-<p><em>Simple DSL to generate simple C programs</em></p>
+<p><em>a simple DSL to generate simple C programs</em></p>
 
 <p>Alternative title:</p>
 
-<p><em>Magical DSL to generate C code from CoffeeScript</em></p>
+<p><em>A magical DSL to generate C code from CoffeeScript</em></p>
 
 <h2>Introduction</h2>
 
@@ -58,7 +58,7 @@
 
 <div class="highlight"><pre><span class="p">{</span> <span class="nx">C</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
 
-<span class="nv">src = </span><span class="nx">C</span> <span class="o">-&gt;</span> 
+<span class="nv">src = </span><span class="nx">C</span> <span class="o">-&gt;</span>
   <span class="nx">include</span> <span class="s">'stdio.h'</span>
   <span class="nx">include</span> <span class="s">'stdlib.h'</span>
   <span class="nx">int</span> <span class="nv">x = </span><span class="mi">40</span>
@@ -82,6 +82,31 @@
 
 <p>Magic? yes. </p>
 
+<h2>Documentation</h2>
+
+<h3>Options</h3>
+
+<p>You can pass parameters to cello.
+For the moment only two are supported:</p>
+
+<ul>
+<li>indent: the indentation string to use (eg. "   " or "\n")</li>
+<li>debug: some debug messages - for development only</li>
+</ul><p>Example:</p>
+
+<div class="highlight"><pre><span class="nv">src = </span><span class="nx">C</span><span class="nf">(indent: "  ", debug: yes) -&gt;</span> 
+  <span class="nv">main = </span><span class="o">-&gt;</span>
+</pre></div>
+
+<h3>Compiling</h3>
+
+<p>Experimental support of gcc is implemented:</p>
+
+<div class="highlight"><pre><span class="p">{</span><span class="nx">C</span><span class="p">,</span> <span class="nx">run</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
+<span class="nv">src = </span><span class="nx">C</span> <span class="o">-&gt;</span> <span class="nv">main = </span><span class="o">-&gt;</span> <span class="nx">printf</span> <span class="s">"hello world"</span>
+<span class="nx">run</span> <span class="nx">src</span><span class="p">,</span> <span class="nf">(output) -&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"output: </span><span class="si">#{</span><span class="nx">output</span><span class="si">}</span><span class="s">"</span>
+</pre></div>
+
 <h2>TODO</h2>
 
 <ul>
@@ -100,8 +125,24 @@
 <li>handle the STDIN / STDOUT wrapping</li>
 </ul><h2>Changelog</h2>
 
+<h4>0.0.3</h4>
+
 <ul>
-<li>0.0.0 - Basic features are supported</li>
+<li>basic support for gcc compilation and execution</li>
+</ul><h4>0.0.2</h4>
+
+<ul>
+<li>added some options</li>
+</ul><h4>0.0.1</h4>
+
+<ul>
+<li>Removed debug console.logs</li>
+<li>forgot to add uglify-js as dependency in the package.json!</li>
+<li>removed useless dependencies in code</li>
+</ul><h4>0.0.0</h4>
+
+<ul>
+<li>Basic features are supported</li>
 </ul>
       </section>
     </div>
