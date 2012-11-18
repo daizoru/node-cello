@@ -31,6 +31,12 @@ CParser = (func,options={}) ->
         tmp += indentationStr
     tmp
 
+  ignore = options.ignore ? ->
+  ignore = "var IGNORED = ignore.toString();"
+  console.log "ignore: #{ignore}"
+  ignore = ['mutable','mutateNow'] # TEMPORARY HACK
+
+
   src = func.toString()
   # convert th
   src = "var ROOT = #{src};"
@@ -48,37 +54,40 @@ CParser = (func,options={}) ->
   scopes = [{}]
   scope = 0
 
-  output = ""
-
   nodeToString = (n, ind = 0) ->
-    if debug
-      console.log "VALUE #{inspect n, no, 20, yes}"
+    #if debug
+    #  console.log "VALUE #{inspect n, no, 20, yes}"
     if n[0] is 'binary'
       "(#{nodeToString n[2]} #{n[1]} #{nodeToString n[3]})"
     else if n[0] is 'string'
       str = n[1]
       str.replace("\n","\\n")
       "\"#{str}\""
+    else if n[0] in ignore
+      nodeToString n[1]
     else
       "#{n[1]}"
 
   mainCall = (args, statements, ind = 0) ->
+    res = ""
     if debug
       console.log "MAIN #{args}  #{statements}"
     tmp = for arg in args
       nodeToString arg
-    args = tmp.join ', '
+    args = tmp
 
-    output += "#{indent ind}main(#{args}) {\n"
+    #output += "#{indent ind}main(#{args}) {\n"
+    body = ""
     tmp2 = for statement in statements
-      parseStatement statement, ind + 1
-    body = tmp2.join ';\n'
-    #output += "void main(args) {\n#{body}\n}\n"
-    output += "#{indent ind + 1}return 0;\n}\n"
+      body += parseStatement statement, ind + 1
+    
+    "void main(#{args}) {\n#{body}#{indent ind + 1}return 0;\n}\n"
+    #output += "#{indent ind + 1}return 0;\n}\n"
 
   functionCall = (func, args, ind = 0) ->
+    res = ""
     if debug
-      console.log "FUNCTION #{func} with args: #{args}"
+      console.log "FUNCTION #{func[1]} with args: #{inspect args, no, 20, yes}"
     symbol = func[1]
     # special hack for typed vars
     if symbol in ['int','uint','float','ufloat','double','char']
@@ -86,27 +95,49 @@ CParser = (func,options={}) ->
         if debug
           console.log "ASSIGN: #{inspect args, no, 20, yes}"
         assignedVarName = args[0][2][1]
-        assignedValue = nodeToString args[0][3]
-        output += "#{indent ind}#{symbol} #{assignedVarName} = #{assignedValue};\n"
+        assignedValue = 0
+
+        if args[0][3][0] is 'call'
+          assignedValue = functionCall args[0][3][1], args[0][3][2]
+        else
+          assignedValue = nodeToString args[0][3]
+
+        res += "#{indent ind}#{symbol} #{assignedVarName} = #{assignedValue};\n"
     else if symbol is 'include'
-      output += "#{indent ind}#include <#{args[0][1]}>\n"
+      res += "#{indent ind}#include <#{args[0][1]}>\n"
+    else if symbol in ignore
+      if debug
+        console.log "function symbol #{symbol} is in ignore list #{ignore}"
+      res += nodeToString args[0], ind
     else
       tmp = for arg in args
         nodeToString arg
-      args = tmp.join(', ')
-      output += "#{indent ind}#{func[1]}(#{args});\n"
+      args = tmp
+      res += "#{indent ind}#{func[1]}(#{args});\n"
+    res
 
-  do parseStatement = (nodes=ast, ind = 0) ->
+  output = do parseStatement = (nodes=ast, ind = 0) ->
+    res = ""
     n = "#{nodes}"
     if 'call,' is n[..4]
-      functionCall nodes[1], nodes[2], ind
+      console.log "checking if #{nodes[1][1]} is in #{ignore}"
+      if nodes[1][1] in ignore
+        if debug
+          console.log "IGNORE func: #{nodes[1]}, args: #{inspect nodes[2], no, 20, yes}"
+        for statement in nodes[2][0][3]
+          res += parseStatement statement, ind
+      else
+        if debug
+          console.log "NOT ignoring"
+        res += functionCall nodes[1], nodes[2], ind
     else if 'assign,true,name,main,function,,' is n[..31]
       args = nodes[3][2]
       statements = nodes[3][3]
-      mainCall args, statements, ind
+      res += mainCall args, statements, ind
     else if isArray nodes
       for node in nodes
-        parseStatement node, ind
+        res += parseStatement node, ind
+    res
 
   # for custom headers
   headers = ""
