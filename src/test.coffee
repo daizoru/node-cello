@@ -1,10 +1,11 @@
+{C} = require 'cello'
 
-{kernel, integer, float} = require './cello'
+src = C -> 
+  include 'stdio.h'
+  include 'stdlib.h'
+  int x = 40
+  main = ->
+   int y = 43 + x
+   printf "hello"
 
-# example
-
-kernel mykernel = (globals, shared, locals) ->
-
-  integer a = globals.a
-
-
+console.log "source:\n#{src}"

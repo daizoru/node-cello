@@ -114,13 +114,3 @@ exports.int   = int = ->
 exports.float = float = ->
 exports.include = include = (file) ->
 
-
-src = C -> 
-  include 'stdio.h'
-  include 'stdlib.h'
-  int x = 40
-  main = ->
-   int y = 43 + x
-   printf "hello"
-
-console.log "source:\n#{src}"
