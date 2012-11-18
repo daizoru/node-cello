@@ -21,15 +21,13 @@ isString    = (obj) -> !!(obj is '' or (obj and obj.charCodeAt and obj.substr))
 exports.toAST = toAST = (f) -> jsp.parse f.toString()
 
 
-varAssign = (n) ->
-  console.log "varAssign #{inspect n, no, 20, yes}"
-  type = n[1][1][1]
-  symbol = n[1][2][0][2][1]
-  value = n[1][2][0][3][1]
-  "#{type} #{symbol} = #{value};\n"
-
 term = (n) ->
   
+indent = (n=0,ch='\t') ->
+  tmp = ""
+  for [0...n]
+    tmp += ch
+  tmp
 
 exports.C = C = (func) ->
 
@@ -50,43 +48,72 @@ exports.C = C = (func) ->
   scope = 0
 
   output = ""
-  do parse = (nodes=ast) ->
+
+  nodeToString = (n, ind = 0) ->
+    console.log "VALUE #{inspect n, no, 20, yes}"
+    if n[0] is 'binary'
+      "(#{nodeToString n[2]} #{n[1]} #{nodeToString n[3]})"
+    else if n[0] is 'string'
+      str = n[1]
+      str.replace("\n","\\n")
+      "\"#{str}\""
+    else
+      "#{n[1]}"
+
+  mainCall = (args, statements, ind = 0) ->
+    console.log "MAIN #{args}  #{statements}"
+    tmp = for arg in args
+      nodeToString arg
+    args = tmp.join ', '
+
+    output += "#{indent ind}void main(#{args}) {\n"
+    tmp2 = for statement in statements
+      parseStatement statement, ind + 1
+    body = tmp2.join ';\n'
+    #output += "void main(args) {\n#{body}\n}\n"
+    output += "#{indent ind}}\n"
+
+  functionCall = (func, args, ind = 0) ->
+    console.log "FUNCTION #{func} with args: #{args}"
+    symbol = func[1]
+    # special hack for typed vars
+    if symbol in ['int','uint','float','ufloat','double','char']
+      if args[0][0] is 'assign'
+        console.log "ASSIGN: #{inspect args, no, 20, yes}"
+        assignedVarName = args[0][2][1]
+        assignedValue = nodeToString args[0][3]
+        output += "#{indent ind}#{symbol} #{assignedVarName} = #{assignedValue};\n"
+    else if symbol is 'include'
+      output += "#{indent ind}#include <#{args[0][1]}>\n"
+    else
+      tmp = for arg in args
+        nodeToString arg
+      args = tmp.join(', ')
+      output += "#{indent ind}#{func[1]}(#{args});\n"
+
+  do parseStatement = (nodes=ast, ind = 0) ->
     n = "#{nodes}"
-
-    if 'stat,call,name,include,string,' is n[0..29]
-      includes.push n[30..]
-    else if "stat,call,name,int,assign,true,name," is n[0..35]
-      output += varAssign nodes
-    else if "stat,call,name,float,assign,true,name," is n[0..35]
-      output += varAssign nodes
-    else if "stat,call,name,ufloat,assign,true,name," is n[0..35]
-      output += varAssign nodes
-    else if "stat,call,name,uint,assign,true,name," is n[0..35]
-      output += varAssign nodes
-    else if "stat,call,name,double,assign,true,name," is n[0..35]
-      output += varAssign nodes
-    else if "stat,call,name,char,assign,true,name," is n[0..35]
-      output += varAssign nodes
-
-
-    if isArray nodes
+    if 'call,' is n[..4]
+      functionCall nodes[1], nodes[2], ind
+    else if 'assign,true,name,main,function,,' is n[..31]
+      args = nodes[3][2]
+      statements = nodes[3][3]
+      mainCall args, statements, ind
+    else if isArray nodes
       for node in nodes
-        parse node
+        parseStatement node, ind
 
 
-
+  # for custom headers
   headers = ""
   for include in includes
     headers += "#include <#{include}>\n"
   output = headers + output
 
-[ 'stat', [ 'call', [ 'name', 'int' ], [ [ 'assign', true, [ 'name', 'x' ], [ 'num', 40 ] ] ] ] ]
-
-[ 'stat', [ 'call', [ 'name', 'include' ], [ [ 'string', 'stdio.h' ] ] ] ]
-
 exports.int   = int = ->
 exports.float = float = ->
 exports.include = include = (file) ->
+
 
 src = C -> 
   include 'stdio.h'
@@ -94,6 +121,6 @@ src = C ->
   int x = 40
   main = ->
    int y = 43 + x
-   console.log y
+   printf "hello"
 
-console.log "source:\n #{src}"
+console.log "source:\n#{src}"
