@@ -9,7 +9,7 @@ Alternative title:
 
 ## Introduction
 
-node-cello is a work-in-progress DSL and template for generating C programs.
+node-cello is a work-in-progress DSL and template engine for generating C programs.
 
 ## Warning
 
@@ -63,12 +63,14 @@ Magic? yes.
 * Implement MUCH MORE C language features
 * Implement ALL C language features (well, ideally)
 * unit tests
-* built-in compiler support? 
+
+### More TODO: built-in compiler support? 
+
 * add support for an 'inline' mode like in Perl
-** autoconf
-** on-the-fly compilation
-** execute the binary
-** handle the STDIN / STDOUT wrapping
+* autoconfing
+* on-the-fly compilation
+* execute the binary
+* handle the STDIN / STDOUT wrapping
 
 ## Changelog
 
