@@ -56,6 +56,24 @@ void main() {
 
 Magic? yes. 
 
+## Documentation
+
+### Options
+
+You can pass parameters to cello.
+For the moment only two are supported:
+
+* indent: the indentation string to use (eg. "   " or "\n")
+* debug: some debug messages - for development only
+
+Example:
+
+```CoffeeScript
+src = C(indent: "  ", debug: yes) -> 
+  main = ->
+```
+
+
 ## TODO
 
 * Find a way to support typed parameters (eg. type inference?)

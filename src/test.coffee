@@ -1,6 +1,6 @@
 {C} = require 'cello'
 
-src = C -> 
+src = C(indent: "  ", debug: yes) -> 
   include 'stdio.h'
   include 'stdlib.h'
   int x = 40

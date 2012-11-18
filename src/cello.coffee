@@ -19,19 +19,18 @@ isString    = (obj) -> !!(obj is '' or (obj and obj.charCodeAt and obj.substr))
 exports.toAST = toAST = (f) -> jsp.parse f.toString()
 
 
-term = (n) ->
+CParser = (func,options={}) ->
+
+  debug = options.debug ? no
+  indentationStr = options.indent ? '\t'
   
-indent = (n=0,ch='\t') ->
-  tmp = ""
-  for [0...n]
-    tmp += ch
-  tmp
+  indent = (n=0) ->
+    tmp = ""
+    if indentationStr
+      for [0...n]
+        tmp += indentationStr
+    tmp
 
-debug = no
-
-C = (func) ->
-
- 
   src = func.toString()
   # convert th
   src = "var ROOT = #{src};"
@@ -116,4 +115,11 @@ C = (func) ->
   output = headers + output
   output
 
-exports.C = C
+exports.C = C = (input) ->
+  options = {}
+  if isFunction input
+    CParser input, options
+  else
+    options = input
+    (input) -> CParser input, options
+
