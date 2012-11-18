@@ -74,4 +74,12 @@ Magic? yes.
 
 ## Changelog
 
-* 0.0.0 - Basic features are supported
+#### 0.0.1
+
+ * Removed debug console.logs
+ * forgot to add uglify-js as dependency in the package.json!
+ * removed useless dependencies in code
+
+#### 0.0.0
+
+ * Basic features are supported

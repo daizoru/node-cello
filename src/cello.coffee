@@ -1,8 +1,6 @@
 
 jsp = require "../node_modules/uglify-js/lib/parse-js"
 pro = require "../node_modules/uglify-js/lib/process"
-cs2js = require('../node_modules/coffee-script').compile
-js2cs = require('../node_modules/js2coffee/lib/js2coffee').build
 
 fs = require 'fs'
 {inspect} = require 'util'
@@ -29,18 +27,22 @@ indent = (n=0,ch='\t') ->
     tmp += ch
   tmp
 
-exports.C = C = (func) ->
+debug = no
+
+C = (func) ->
 
  
   src = func.toString()
   # convert th
   src = "var ROOT = #{src};"
 
-  console.log "src: #{src}"
+  if debug
+    console.log "src: #{src}"
   ast = toAST src
 
 
-  console.log "AST: #{inspect ast, no, 20, yes}"
+  if debug
+    console.log "AST: #{inspect ast, no, 20, yes}"
   
   includes = []
 
@@ -50,7 +52,8 @@ exports.C = C = (func) ->
   output = ""
 
   nodeToString = (n, ind = 0) ->
-    console.log "VALUE #{inspect n, no, 20, yes}"
+    if debug
+      console.log "VALUE #{inspect n, no, 20, yes}"
     if n[0] is 'binary'
       "(#{nodeToString n[2]} #{n[1]} #{nodeToString n[3]})"
     else if n[0] is 'string'
@@ -61,7 +64,8 @@ exports.C = C = (func) ->
       "#{n[1]}"
 
   mainCall = (args, statements, ind = 0) ->
-    console.log "MAIN #{args}  #{statements}"
+    if debug
+      console.log "MAIN #{args}  #{statements}"
     tmp = for arg in args
       nodeToString arg
     args = tmp.join ', '
@@ -74,12 +78,14 @@ exports.C = C = (func) ->
     output += "#{indent ind + 1}return 0;\n}\n"
 
   functionCall = (func, args, ind = 0) ->
-    console.log "FUNCTION #{func} with args: #{args}"
+    if debug
+      console.log "FUNCTION #{func} with args: #{args}"
     symbol = func[1]
     # special hack for typed vars
     if symbol in ['int','uint','float','ufloat','double','char']
       if args[0][0] is 'assign'
-        console.log "ASSIGN: #{inspect args, no, 20, yes}"
+        if debug
+          console.log "ASSIGN: #{inspect args, no, 20, yes}"
         assignedVarName = args[0][2][1]
         assignedValue = nodeToString args[0][3]
         output += "#{indent ind}#{symbol} #{assignedVarName} = #{assignedValue};\n"
@@ -103,14 +109,11 @@ exports.C = C = (func) ->
       for node in nodes
         parseStatement node, ind
 
-
   # for custom headers
   headers = ""
   for include in includes
     headers += "#include <#{include}>\n"
   output = headers + output
+  output
 
-exports.int   = int = ->
-exports.float = float = ->
-exports.include = include = (file) ->
-
+exports.C = C
