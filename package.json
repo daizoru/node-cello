@@ -1,6 +1,6 @@
 {
   "name": "cello",
-  "description": "a simple DSL to generate simple C programs",
+  "description": "Simple DSL to generate simple C programs",
   "version": "0.0.0",
   "author": "Julian Bilcke <julian.bilcke@daizoru.com>",
   "scripts"     : {
@@ -10,7 +10,8 @@
   "main" : "./lib/cello",
   "repository": "http://github.com/daizoru/node-cello.git",
   "keywords": [
-    "C"
+    "C",
+    "code generation"
   ],
   "license": "BSD",
   "dependencies": {
