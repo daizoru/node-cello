@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Node-cello by daizoru</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Node-cello</h1>
+        <p>Simple DSL to generate simple C programs</p>
+        <p class="view"><a href="https://github.com/daizoru/node-cello">View the Project on GitHub <small>daizoru/node-cello</small></a></p>
+        <ul>
+          <li><a href="https://github.com/daizoru/node-cello/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/daizoru/node-cello/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/daizoru/node-cello">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>node-cello</h1>
+
+<p><em>Simple DSL to generate simple C programs</em></p>
+
+<p>Alternative title:</p>
+
+<p><em>Magical DSL to generate C code from CoffeeScript</em></p>
+
+<h2>Introduction</h2>
+
+<p>node-cello is a work-in-progress DSL and template engine for generating C programs.</p>
+
+<h2>Warning</h2>
+
+<p>This is an experimental project, and should be used with care.</p>
+
+<p>For the moment only basic C code can be generated using this library.</p>
+
+<p>The code is a bit messy, and architecture/syntax is not fixed yet.</p>
+
+<p>However it is already on NPM repository because:</p>
+
+<ol>
+<li>it basically works</li>
+<li>it's a dependency of another project</li>
+</ol><p>Thank you for your understanding!</p>
+
+<h2>Demo</h2>
+
+<div class="highlight"><pre><span class="p">{</span> <span class="nx">C</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
+
+<span class="nv">src = </span><span class="nx">C</span> <span class="o">-&gt;</span> 
+  <span class="nx">include</span> <span class="s">'stdio.h'</span>
+  <span class="nx">include</span> <span class="s">'stdlib.h'</span>
+  <span class="nx">int</span> <span class="nv">x = </span><span class="mi">40</span>
+  <span class="nv">main = </span><span class="o">-&gt;</span>
+   <span class="nx">int</span> <span class="nv">y = </span><span class="mi">43</span> <span class="o">+</span> <span class="nx">x</span>
+   <span class="nx">printf</span> <span class="s">"hello"</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">src</span>
+</pre></div>
+
+<p>Outputs: </p>
+
+<div class="highlight"><pre><span class="cp">#include &lt;stdio.h&gt;</span>
+<span class="cp">#include &lt;stdlib.h&gt;</span>
+<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">40</span><span class="p">;</span>
+<span class="kt">void</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">43</span> <span class="o">+</span> <span class="n">x</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"hello"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>Magic? yes. </p>
+
+<h2>TODO</h2>
+
+<ul>
+<li>Find a way to support typed parameters (eg. type inference?)</li>
+<li>Implement more C language features</li>
+<li>Implement MUCH MORE C language features</li>
+<li>Implement ALL C language features (well, ideally)</li>
+<li>unit tests</li>
+</ul><h3>More TODO: built-in compiler support?</h3>
+
+<ul>
+<li>add support for an 'inline' mode like in Perl</li>
+<li>autoconfing</li>
+<li>on-the-fly compilation</li>
+<li>execute the binary</li>
+<li>handle the STDIN / STDOUT wrapping</li>
+</ul><h2>Changelog</h2>
+
+<ul>
+<li>0.0.0 - Basic features are supported</li>
+</ul>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/daizoru">daizoru</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
