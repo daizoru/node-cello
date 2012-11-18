@@ -1,6 +1,6 @@
-{C} = require 'cello'
+{C, compile, run} = require 'cello'
 
-src = C(indent: "  ", debug: yes) -> 
+src = C(indent: "  ", debug: no) -> 
   include 'stdio.h'
   include 'stdlib.h'
   int x = 40
@@ -9,3 +9,6 @@ src = C(indent: "  ", debug: yes) ->
    printf "hello"
 
 console.log "source:\n#{src}"
+
+run src, (output) ->
+  console.log "output: #{output}"

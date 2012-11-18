@@ -1,9 +1,13 @@
 
-jsp = require "../node_modules/uglify-js/lib/parse-js"
-pro = require "../node_modules/uglify-js/lib/process"
 
 fs = require 'fs'
 {inspect} = require 'util'
+spawn = require('child_process').spawn
+
+tmp = require 'tmp'
+
+jsp = require "../node_modules/uglify-js/lib/parse-js"
+pro = require "../node_modules/uglify-js/lib/process"
 
 copy = (a) -> JSON.parse(JSON.stringify(a))
 
@@ -32,8 +36,9 @@ CParser = (func,options={}) ->
     tmp
 
   ignore = options.ignore ? ->
-  ignore = "var IGNORED = ignore.toString();"
-  console.log "ignore: #{ignore}"
+  ignore = "var IGNORED = #{ignore.toString()};"
+  if debug
+    console.log "ignore: #{ignore}"
   ignore = ['mutable','mutateNow'] # TEMPORARY HACK
 
 
@@ -81,7 +86,7 @@ CParser = (func,options={}) ->
     tmp2 = for statement in statements
       body += parseStatement statement, ind + 1
     
-    "void main(#{args}) {\n#{body}#{indent ind + 1}return 0;\n}\n"
+    "int main(#{args}) {\n#{body}#{indent ind + 1}return 0;\n}\n"
     #output += "#{indent ind + 1}return 0;\n}\n"
 
   functionCall = (func, args, ind = 0) ->
@@ -120,7 +125,8 @@ CParser = (func,options={}) ->
     res = ""
     n = "#{nodes}"
     if 'call,' is n[..4]
-      console.log "checking if #{nodes[1][1]} is in #{ignore}"
+      if debug
+        console.log "checking if #{nodes[1][1]} is in #{ignore}"
       if nodes[1][1] in ignore
         if debug
           console.log "IGNORE func: #{nodes[1]}, args: #{inspect nodes[2], no, 20, yes}"
@@ -145,6 +151,47 @@ CParser = (func,options={}) ->
     headers += "#include <#{include}>\n"
   output = headers + output
   output
+
+exports.compile = (src, onComplete=->) ->
+  fs.writeFile 'output.c', src, (err) ->
+    throw err if err
+    gcc = spawn 'gcc', ['output.c', '-o-']
+    gcc.on 'exit', (code, signal) ->
+      onComplete gcc.stdout
+    gcc.stdin.end()
+
+exports.run = (src, onComplete=->) ->
+  # TODO: add options
+  srcFile = 'output.c'
+  binFile = 'output'
+  fs.writeFile srcFile, src, (err) ->
+    throw err if err
+    gcc = spawn 'gcc', [srcFile, '-o', binFile]
+    gcc.on 'exit', (code, signal) ->
+ 
+      #console.log "gcc exit code is: #{code}"
+      #console.log 'gcc terminated due to receipt of signal '+signal
+      prog = spawn "./#{binFile}", []
+      prog.stdin.end()
+      _stdout = ""
+      prog.stdout.on 'data', (data) ->
+        _stdout += data.toString()
+
+      _stderr = ""
+      prog.stderr.on 'data', (data) ->
+        _stderr += data.toString()
+
+      prog.on 'exit', (code, signal) ->
+        #if code isnt 0
+        #  console.log "code is: #{code}"
+        #  #throw new Error "process failed: #{_stderr}"
+        fs.unlink binFile, ->
+          fs.unlink srcFile, ->
+        onComplete _stdout
+    
+    gcc.stdin.end()
+
+
 
 exports.C = C = (input) ->
   options = {}

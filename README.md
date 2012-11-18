@@ -73,6 +73,15 @@ src = C(indent: "  ", debug: yes) ->
   main = ->
 ```
 
+### Compiling
+
+Experimental support of gcc is implemented:
+
+```CoffeeScript
+{C, run} = require 'cello'
+src = C -> main = -> printf "hello world"
+run src, (output) -> console.log "output: #{output}"
+```
 
 ## TODO
 
@@ -92,10 +101,14 @@ src = C(indent: "  ", debug: yes) ->
 
 ## Changelog
 
+#### 0.0.3
+
+ * basic support for gcc compilation and execution
+
 #### 0.0.2
 
  * added some options
- 
+
 #### 0.0.1
 
  * Removed debug console.logs
