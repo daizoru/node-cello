@@ -1,0 +1,21 @@
+{
+  "name": "cello",
+  "description": "a simple DSL to generate simple C programs",
+  "version": "0.0.0",
+  "author": "Julian Bilcke <julian.bilcke@daizoru.com>",
+  "scripts"     : {
+    "build"     : "node_modules/coffee-script/bin/coffee --compile --output lib/ src/",
+    "watch"     : "node_modules/coffee-script/bin/coffee --watch --compile --output lib/ src/"
+  },
+  "main" : "./lib/cello",
+  "repository": "http://github.com/daizoru/node-cello.git",
+  "keywords": [
+    "C"
+  ],
+  "license": "BSD",
+  "dependencies": {
+  },
+  "devDependencies": {
+     "coffee-script" : "*"
+  }
+}
