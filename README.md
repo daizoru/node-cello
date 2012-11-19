@@ -29,7 +29,7 @@ Thank you for your understanding!
 ## Demo
 
 ```coffeescript
-{ C } = require 'cello'
+{ C, run } = require 'cello'
 
 src = C ->
   include 'stdio.h'
@@ -39,10 +39,11 @@ src = C ->
    int y = 43 + x
    printf "hello"
 
-console.log src
+# compile & run
+run src, console.log
 ```
 
-Outputs: 
+Will generate this code: 
 
 ```C
 #include <stdio.h>
@@ -54,7 +55,7 @@ void main() {
 }
 ```
 
-Magic? yes. 
+Then it will run and print 'hello'. Magic? yes. 
 
 ## Documentation
 
