@@ -49,9 +49,10 @@ Will generate this code:
 #include <stdio.h>
 #include <stdlib.h>
 int x = 40;
-void main() {
+int main() {
 	int y = (43 + x);
 	printf("hello");
+	return 0;
 }
 ```
 
