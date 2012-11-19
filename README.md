@@ -170,8 +170,9 @@ run src, (output) -> console.log "output: #{output}"
 
 ## TODO
 
+*
 * Find a way to support typed parameters (eg. type inference?)
-* Implement more C language features
+* Implement more C language features, like true function declaration (with types)
 * Implement MUCH MORE C language features
 * Implement ALL C language features (well, ideally)
 * unit tests
@@ -185,6 +186,16 @@ run src, (output) -> console.log "output: #{output}"
 * handle the STDIN / STDOUT wrapping
 
 ## Changelog
+
+#### 0.0.4
+
+ Added basic support for:
+
+ * array declaration and initialization
+ * pointers (using $ instead of *)
+ * while loops
+
+ Also fixed a few bugs around
 
 #### 0.0.3
 

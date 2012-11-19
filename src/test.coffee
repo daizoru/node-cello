@@ -3,7 +3,7 @@ require 'colors'
 
 options =
   indent: "  "
-  evaluate: -> [ Math.random ]
+  evaluate: -> [ Math.random, Math.round ]
   ignore: -> []
   debug: no
 
