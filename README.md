@@ -26,14 +26,13 @@ However it is already on NPM repository because:
 
 Thank you for your understanding!
 
-## Demo
+## Demo 1
 
 ```coffeescript
 { C, run } = require 'cello'
 
 src = C ->
   include 'stdio.h'
-  include 'stdlib.h'
   int x = 40
   main = ->
    int y = 43 + x
@@ -47,7 +46,6 @@ Will generate this code:
 
 ```C
 #include <stdio.h>
-#include <stdlib.h>
 int x = 40;
 int main() {
 	int y = (43 + x);
@@ -57,6 +55,91 @@ int main() {
 ```
 
 Then it will run and print 'hello'. Magic? yes. 
+
+## Demo 2
+
+```CoffeeScript
+{C, run} = require 'cello'
+
+options =
+  indent: "  "
+  evaluate: -> [ Math.random, Math.round ]
+  ignore: -> []
+  debug: no
+
+src = C(options) -> 
+  include 'stdio.h'
+  include 'stdlib.h'
+
+  int x = 40
+
+  main = ->
+
+    printf "hello, "
+    int y = 43 + x / 10
+    printf "result is %i", y
+
+    int a = [ 0, 0, 0, 1, 0 ]
+    int b[5] = [ 0 ]
+
+    float seed = Math.round Math.random() * 1000
+ 
+    #int compute = (a=int, b=int) -> a + b
+
+    char p1 = 127
+    char $p2 = malloc sizeof char
+
+    int i = 0
+    while i < 10000
+      ++i
+    while i > 10000
+      i--   
+
+    0 
+
+    
+
+console.log "#{src}"
+
+run src, (err, output) ->
+  if err
+    throw new Error err
+  else
+    console.log "#{output}"
+```
+
+will generate:
+
+```C
+#include <stdio.h>
+#include <stdlib.h>
+int x = 40;
+int main() {
+  printf("hello, ");
+  int y = 43 + x / 10;
+  printf("result is %i",y);
+  int a = {0, 0, 0, 1, 0};
+  int b[5] = {0};
+  float seed = 926;
+  char p1 = 127;
+  char *p2 = malloc(sizeof(char));
+  int i = 0;
+  while (i < 10000) {
+    ++i;
+  }
+  while (i > 10000) {
+    i--;
+  }
+  return 0;
+}
+
+```
+
+with output:
+
+```
+hello
+```
 
 ## Documentation
 

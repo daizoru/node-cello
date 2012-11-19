@@ -1,14 +1,46 @@
 {C, compile, run} = require 'cello'
+require 'colors'
 
-src = C(indent: "  ", debug: no) -> 
+options =
+  indent: "  "
+  evaluate: -> [ Math.random ]
+  ignore: -> []
+  debug: no
+
+src = C(options) -> 
   include 'stdio.h'
   include 'stdlib.h'
+
   int x = 40
+
   main = ->
-   int y = 43 + x
-   printf "hello"
 
-console.log "source:\n#{src}"
+    printf "hello, "
+    int y = 43 + x / 10
+    printf "result is %i", y
 
-run src, (output) ->
-  console.log "output: #{output}"
+    int a = [ 0, 0, 0, 1, 0 ]
+    int b[5] = [ 0 ]
+
+    float seed = Math.round Math.random() * 1000
+ 
+    #int compute = (a=int, b=int) -> a + b
+
+    char p1 = 127
+    char $p2 = malloc sizeof char
+
+    int i = 0
+    while i < 10000
+      ++i
+    while i > 10000
+      i--   
+
+    0 
+
+console.log "#{src}"
+
+run src, (err, output) ->
+  if err
+    throw new Error err.red
+  else
+    console.log "#{output}".green
