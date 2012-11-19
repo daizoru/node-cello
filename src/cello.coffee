@@ -22,6 +22,31 @@ isString    = (obj) -> !!(obj is '' or (obj and obj.charCodeAt and obj.substr))
 
 exports.toAST = toAST = (f) -> jsp.parse f.toString()
 
+TYPES = [
+  'int'
+  'uint'
+  'float'
+  'ufloat'
+  'long'
+  'ulong'
+  'double'
+  '_const'
+  'char'
+  'uchar'
+  'float16'
+  'float32'
+  'int16'
+  'int32'
+  '__kernel'
+  'void'
+  'Void'
+  'VOID'
+  'bool'
+  'boolean'
+  'integer'
+  'const'
+]
+
 resolve = (item) ->
   #console.log "RESOLVE/ #{inspect item, no, 20, yes}"
   name = ""
@@ -63,6 +88,8 @@ CParser = (func,options={}) ->
   ignore = ignore[1][0][1][0][1][3][0][1][1]
   ignore = for node in ignore
     resolve node
+
+  
   
   debug "ignored references: #{inspect ignore, no, 20, yes}"
   ignore = ['mutable','mutateNow','_results'] # TEMPORARY HACK
@@ -77,156 +104,194 @@ CParser = (func,options={}) ->
   scopes = [{}]
   scope = 0
 
-  # used for values (not statements)
-  # there is no ";" and no indentation
-  nodeToString = (n, ind = 0) ->
-    #
-    debug "VALUE #{inspect n, no, 20, yes}"
-    if n[0] is 'binary'
-      "#{nodeToString n[2]} #{n[1]} #{nodeToString n[3]}"
-    else if n[0] is 'sub'
-      
-      debug "SUB: #{n}"
-      "#{n[1][1]}[#{n[2][1]}]"
-    else if n[0] is 'array'
-      elements = for element in n[1]
-        nodeToString element
-      "{#{elements.join(', ')}}"
-    else if n[0] in ignore
-      nodeToString n[1]
-    else if resolve(n[1]) in evaluate
-      code = pro.gen_code n, {}
-      eval code
-    else if n[0] is 'call'
-      params = for p in n[2]
-        nodeToString p
-      "#{n[1][1]}(#{params.join(', ')})"
-    else if n[0] is 'string'
-      str = n[1]
-      str.replace("\n","\\n")
-      "\"#{str}\""
-    else if isString n[1]
-      "#{n[1].replace('$','*')}"
-    else
-      "#{n[1]}"
+  pretty = (n) -> "#{inspect n, no, 20, yes}"
 
-  functionDef = (args, statements, ind = 0) ->
-    res = ""
+  output = do parse = (nodes=ast, ind=0) ->
+    return "" unless isArray nodes
+    type = nodes[0]
+    first = nodes[1]
+    ind = 0 unless ind?
+    #console.log "indentation: #{ind}"
+    switch type
+
+      when 'num'
+        "#{first}"
+
+      when 'dot'
+        name = resolve nodes
+        # try first to evaluate a complex.object.path
+        if name in evaluate
+          "#{eval name}"
+        else if name in ignore
+          ""
+        else
+          "#{if isArray(first) then parse(first) else first[1]}.#{nodes[2]}"
     
-    debug "FUNCTION #{args}  #{statements}"
-    tmp = for arg in args
-      nodeToString arg
-    args = tmp
+      when 'name'
+        name = resolve nodes
+        # try first to evaluate a simple name
+        if name in evaluate
+          "#{eval name}"
+        else if name in ignore
+          ""
+        else
+          if first in ['VOID','Void'] then "void" else first.replace '$', '*'
 
-    #output += "#{indent ind}main(#{args}) {\n"
-    body = ""
-    tmp2 = for statement in statements
-      body += parseStatement statement, ind + 1
-    
-    "int name(#{args}) {\n#{body}#{indent ind + 1}return 0;\n}\n"
-    #output += "#{indent ind + 1}return 0;\n}\n"
+      when 'string'
+        debug "STRING"
+        str = first
+        str.replace "\n", "\\n"
+        "\"#{str}\""
 
-  mainCall = (args, statements, ind = 0) ->
-    res = ""
-    
-    debug "MAIN #{args}  #{statements}"
-    tmp = for arg in args
-      nodeToString arg
-    args = tmp
+      when 'unary-postfix'
+        debug "unary postfix"
+        debug pretty nodes
+        "#{parse nodes[2]}#{nodes[1]}"
 
-    #output += "#{indent ind}main(#{args}) {\n"
-    body = ""
-    tmp2 = for statement in statements
-      body += parseStatement statement, ind + 1
-    
-    "int main(#{args}) {\n#{body}#{indent ind + 1}return 0;\n}\n"
-    #output += "#{indent ind + 1}return 0;\n}\n"
+      when 'unary-prefix'
+        debug "unary prefix"
+        debug pretty nodes
+        "#{nodes[1]}#{parse nodes[2]}"
 
-  functionCall = (func, args, ind = 0) ->
-    res = ""
-    
-    debug "FUNCTION #{func[1]} with args: #{inspect args, no, 20, yes}"
-    symbol = func[1]
-    #if 'unary-postfix,' is n[..13]
-    #  res += "nodes[2][1]#{nodes[1]}"
-    if func[1][1] in ignore
+      when 'while'
+        debug "WHILE LOOP"
+        debug pretty nodes[2]
+        cond = parse first, ind
+        body = ""
+        for statement in nodes[2][1]
+          body += parse statement, ind + 1
+        "#{indent ind}while (#{cond}) {\n#{body}#{indent ind}}\n"
+
+      when 'binary'
+        debug "BINARY OPERATION"
+        parse(nodes[2]) + " #{first} " + parse(nodes[3])
+
+      when 'sub'
+        debug "ARRAY INDEX"
+        "#{parse first}[#{parse nodes[2]}]"
+
+      when 'array'
+        debug "ARRAY"
+        debug pretty first
+        elements = for n in first
+          parse n
+        "{#{elements.join(', ')}}"
       
-      debug "bad function call, ignoring"
-      res += parseStatement args
-    # special hack for typed vars
+      when 'return'
+        debug "RETURN"
+        # dot not wrap automatic return calls generated by coffee
+        if first[0] is 'call' and first[1][1] in TYPES
+          parse first
+        else
+          "#{indent ind}return #{parse first};\n"
 
-    else if symbol in ['int','uint','float','ufloat','double','char','bool','boolean','_void']
-      if args[0][0] is 'assign'
-        debug "ASSIGN: #{inspect args, no, 20, yes}"
-        assignedVarName = nodeToString args[0][2]
-        assignedValue = nodeToString args[0][3]
-        res += "#{indent ind}#{symbol} #{assignedVarName} = #{assignedValue};\n"
-    else if symbol is 'include'
-      res += "#{indent ind}#include <#{args[0][1]}>\n"
-    else if symbol in ignore
-      
-      debug "function symbol #{symbol} is in ignore list #{ignore}"
-      res += nodeToString args[0], ind
-    else
-      tmp = for arg in args
-        nodeToString arg
-      args = tmp
-      res += "#{indent ind}#{func[1]}(#{args});\n"
-    res
+      when 'assign'
+        debug "ASSIGN"
+        if nodes[3][0] is 'function'
+          debug "FUNCTION ASSIGNEMENT"
+          statements = for n in nodes[3][3]
+            parse n, ind + 1
+          parse(nodes[2]) + "() {\n" + statements.join('') + "}\n"
+        else
+          debug "CLASSIC ASSIGN"
+          parse(nodes[2]) + " = " + parse(nodes[3])
 
-  output = do parseStatement = (nodes=ast, ind = 0) ->
-    res = ""
-    n = "#{nodes}"
+      when 'stat'
+        debug "STATEMENT"
+        debug pretty nodes
 
-    if isArray(nodes) and nodes[0] is 'unary-postfix'
-      debug "unary postfix: #{inspect nodes, no, 20, yes}"
-      res += "#{indent ind}#{nodes[2][1]}#{nodes[1]};"
-    else if isArray(nodes) and nodes[0] is 'unary-prefix'
-      debug "unary prefix: #{inspect nodes, no, 20, yes}"
-      res += "#{indent ind}#{nodes[1]}#{nodes[2][1]};"
-    else if isArray(nodes) and nodes[0] is 'while'
-      
-      debug "WHILE: #{inspect nodes[2], no, 20, yes}"
-      cond = nodeToString nodes[1], ind
-      body = ""
-      for statement in nodes[2][1]
-        body += parseStatement statement, ind + 1
-      res += "#{indent ind}while (#{cond}) {\n#{body}\n#{indent ind}}\n"
-    else if isArray(nodes) and nodes[0] is 'call'
-      
-      debug "checking if #{nodes[1][1]} is in #{ignore}"
+        if resolve(nodes[1][1]) is 'include'
+          #debug "INCLUDE"
+          #debug pretty nodes[1][2]
+          "#{indent ind}#include <#{nodes[1][2][0][1]}>\n"
+        else
+          indent(ind) + parse(first, ind + 1) + ";\n"
 
-      if nodes[1][1] in ignore
+      when 'call'
+        debug "CALL"
+        debug pretty nodes
         
-        debug "IGNORE func: #{nodes[1]}, args: #{inspect nodes[2], no, 20, yes}"
-        for statement in nodes[2][0][3]
-          res += parseStatement statement, ind
-      else
+        callee = resolve nodes[1]    
+        params = nodes[2]    
+
+        debug "CALLEE: #{callee}"
+  
+        if callee in ignore
+          cut = params[0][3]
+          buff = ""
+          for node in cut
+            buff += parse node, ind
+          buff
+        else if callee in evaluate
+          code = pro.gen_code nodes, {}
+          "#{eval code}"
+        else
+          param1 = params[0]
+          debug "PARAM 1:"
+          debug pretty param1
+          if callee in TYPES
+            debug "typed assignement"
+            "#{callee} #{parse param1}"
+          else
+            if param1[0] is 'call' and param1[2][0][0] is 'assign'
+              debug "two-level typing declaration"
+            else
+              
+          
+              params = for p in params
+                parse p, ind
+              "#{callee}(#{params.join ','})"
+        ###
+            buff = callee # type 1
+            buff += resolve param1 # type 2
+            if param1[2][0][3][0] is 'function'
+              debug "of a function, great"
+              buff += " #{resolve param1[2][0][2]}" # func name
+              buff += " ()"
+              buff += " {\n"
+              body = ""
+              statements = param1[2][0][3][3]
+              #debug "body: #{inspect statements, no, 20, yes}"
+              for statement in statements
+                body += parse statement, ind + 1
+              buff += body
+              buff += "\n}\n"
+            else
+              debug "of a variable"
+              buff += "#{nodeToString param1[2][0][4]}"
+            res += buff
+          else if param1[0] is 'assign'
+            debug "simple level typing: #{inspect parameters, no, 20, yes}"
+            buff = "#{resolve nodes[1]}" # type
+            res += buff
+            
+          else # just a call
+            debug "NOT a function"
+            res += functionCall nodes[1], parameters, ind
+        ###
+      when 'assign' 
         
-        debug "NOT ignoring"
-        res += functionCall nodes[1], nodes[2], ind
-
-    else if isArray(nodes) and nodes[0] is 'assign' 
-      
-      debug "ASSIGNEMENT NOT USED????"
-    
-      if nodes[2][0] is 'sub'
-        assigned = nodeToString nodes[2]
-        value = parseStatement nodes[3]
-        res += "#{assigned} = #{value}"
-      else if nodes[2][1] is 'main'
-        args = nodes[3][2]
-        statements = nodes[3][3]
-        res += mainCall args, statements, ind
+        debug "ASSIGNEMENT"
+        debug pretty nodes
+        ###
+        if nodes[2][0] is 'sub'
+          assigned = nodeToString nodes[2]
+          value = parse nodes[3]
+          "#{assigned} = #{value}"
+        else if nodes[2][1] is 'main'
+          args = nodes[3][2]
+          statements = nodes[3][3]
+          mainCall args, statements, ind
+        else
+          assigned = nodeToString nodes[2]
+          value = parse nodes[3]
+          "#{assigned} = #{value}"
+        ###
       else
-        assigned = nodeToString nodes[2]
-        value = parseStatement nodes[3]
-        res += "#{assigned} = #{value}"
-
-    else if isArray(nodes)
-      for node in nodes
-        res += parseStatement node, ind
-    res
+        buff = ""
+        for node in nodes
+          buff += parse node, ind
+        buff
 
   # for custom headers
   headers = ""

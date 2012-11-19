@@ -13,7 +13,7 @@ src = C(options) ->
 
   int x = 40
 
-  main = ->
+  int main = ->
 
     printf "hello, "
     int y = 43 + x / 10
@@ -24,7 +24,7 @@ src = C(options) ->
 
     float seed = Math.round Math.random() * 1000
  
-    #int compute = (a=int, b=int) -> a + b
+    #int compute = (a=int, b=int) -> x + y
 
     char p1 = 127
     char $p2 = malloc sizeof char
@@ -38,9 +38,9 @@ src = C(options) ->
     0 
 
 console.log "#{src}"
-
-run src, (err, output) ->
-  if err
-    throw new Error err.red
-  else
-    console.log "#{output}".green
+if yes
+  run src, (err, output) ->
+    if err
+      throw new Error err.red
+    else
+      console.log "#{output}".green

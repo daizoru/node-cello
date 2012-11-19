@@ -179,15 +179,14 @@ run src, (output) -> console.log "output: #{output}"
 * Implement ALL C language features (well, ideally)
 * unit tests
 
-### More TODO: built-in compiler support? 
-
-* add support for an 'inline' mode like in Perl
-* autoconfing
-* on-the-fly compilation
-* execute the binary
-* handle the STDIN / STDOUT wrapping
-
 ## Changelog
+
+#### 0.0.5
+
+ * Rewrote nearly everything from scratch
+ * should be f***ing more robust now
+ * moved debug scripts to /examples
+ * experimenting with OpenCL kernel generation (yeah for node-evolve!)
 
 #### 0.0.4
 
