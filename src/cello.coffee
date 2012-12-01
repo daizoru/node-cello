@@ -146,7 +146,7 @@ CParser = (func,options={}) ->
         else if name in ignore
           ""
         else
-          if first in ['VOID','Void'] then "void" else first.replace '$', '*'
+          if first in ['_void','VOID','Void'] then "void" else first.replace '$', '*'
 
       when 'string'
         debug "STRING"
@@ -213,7 +213,17 @@ CParser = (func,options={}) ->
           debug "FUNCTION ASSIGNEMENT"
           statements = for n in nodes[3][3]
             parse n, ind + 1
-          parse(nodes[2]) + "() {\n" + statements.join('') + "}\n"
+          debug "LOOKING FOR  DEFINITION: "
+          nbArgs = nodes[2].length
+          args = []
+          if nbArgs > 0
+            args = statements[1..nbArgs + 1]
+            args = for arg in args
+              arg.trim().replace(';','').replace('\n','')
+            statements = statements[nbArgs + 2..]
+
+          #debug pretty args
+          parse(nodes[2]) + "(#{args.join(',')}) {\n" + statements.join('') + "}\n"
         else
           debug "CLASSIC ASSIGN"
           parse(nodes[2]) + " = " + parse(nodes[3])
