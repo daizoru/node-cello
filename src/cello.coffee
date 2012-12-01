@@ -213,14 +213,15 @@ CParser = (func,options={}) ->
           debug "FUNCTION ASSIGNEMENT"
           statements = for n in nodes[3][3]
             parse n, ind + 1
-          debug "LOOKING FOR  DEFINITION: "
-          nbArgs = nodes[2].length
+          debug "LOOKING FOR  DEFINITION: #{pretty nodes[3]}"
+          nbArgs = nodes[3][2].length
           args = []
           if nbArgs > 0
-            args = statements[1..nbArgs + 1]
+            console.log "nbArgs: #{nbArgs}"
+            args = statements[1..nbArgs]
             args = for arg in args
               arg.trim().replace(';','').replace('\n','')
-            statements = statements[nbArgs + 2..]
+            statements = statements[nbArgs + 1..]
 
           #debug pretty args
           parse(nodes[2]) + "(#{args.join(',')}) {\n" + statements.join('') + "}\n"

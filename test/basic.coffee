@@ -11,7 +11,7 @@ describe 'generating source code', ->
     debug: no
 
   it 'should support empty programs', (done) ->
-    src = generate -> int main = -> 0
+    src = generate -> int main = -> return 0
     expect(src).to.equal """int main() {\nreturn 0;\n}\n\n"""
     done()
 
