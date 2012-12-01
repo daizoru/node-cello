@@ -340,8 +340,17 @@ exports.compile = (src, onComplete=->) ->
       onComplete gcc.stdout
     gcc.stdin.end()
 
-exports.run = (src, onComplete=->) ->
+exports.run = (src, a, b) ->
   # TODO: add options
+  onComplete = ->
+  args = []
+  if b?
+    onComplete = b
+    args = a
+  else
+    if a?
+      onComplete = a
+  
   srcFile = 'output.c'
   binFile = 'output'
   fs.writeFile srcFile, src, (err) ->
@@ -359,7 +368,7 @@ exports.run = (src, onComplete=->) ->
 
       #console.log "gcc exit code is: #{code}"
       #console.log 'gcc terminated due to receipt of signal '+signal
-      prog = spawn "./#{binFile}", []
+      prog = spawn "./#{binFile}", args
       prog.stdin.end()
       _stdout = ""
       prog.stdout.on 'data', (data) ->

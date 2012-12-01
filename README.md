@@ -181,6 +181,11 @@ run src, (output) -> console.log "output: #{output}"
 
 ## Changelog
 
+#### 0.0.7
+
+ * added support for functions (eg. main) args
+ * added support for command line args (when calling run())
+
 #### 0.0.6
 
  * fixed a bug with missing parameters in the options
