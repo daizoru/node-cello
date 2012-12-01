@@ -349,7 +349,12 @@ exports.run = (src, a, b) ->
     args = a
   else
     if a?
-      onComplete = a
+      if isFunction a
+        onComplete = a
+      else
+        throw new Error "onComplete (second argument here) must be a function"
+    else
+      0#console.log "not args, no onComplete.."
   
   srcFile = 'output.c'
   binFile = 'output'
@@ -379,12 +384,14 @@ exports.run = (src, a, b) ->
         _stderr += data.toString()
 
       prog.on 'exit', (code, signal) ->
-        #if code isnt 0
-        #debug "code is: #{code}"
-        #  #throw new Error "process failed: #{_stderr}"
-        fs.unlink binFile, ->
-          fs.unlink srcFile, ->
-        onComplete undefined, _stdout
+        if code isnt 0
+          #console.log "code is: #{code}"
+          #  #throw new Error "process failed: #{_stderr}"
+          onComplete _stderr, ""
+        else
+          fs.unlink binFile, ->
+            fs.unlink srcFile, ->
+              onComplete undefined, _stdout
     
     gcc.stdin.end()
 
