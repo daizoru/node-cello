@@ -217,7 +217,6 @@ CParser = (func,options={}) ->
           nbArgs = nodes[3][2].length
           args = []
           if nbArgs > 0
-            console.log "nbArgs: #{nbArgs}"
             args = statements[1..nbArgs]
             args = for arg in args
               arg.trim().replace(';','').replace('\n','')
