@@ -84,22 +84,26 @@ CParser = (func,options={}) ->
         tmp += indentationStr
     tmp
 
-  evaluate = options.evaluate ? ->
-  evaluate = toAST "var EVALUATED = #{evaluate.toString()};"
-  evaluate = evaluate[1][0][1][0][1][3][0][1][1] # fuck this shit
-  evaluate = for node in evaluate
-    resolve node
+  evaluate = []
+  if options.evaluate?
+    ev = toAST "var EVALUATED = #{options.evaluate.toString()};"
+    ev = ev[1][0][1][0][1][3][0][1][1] # fuck this shit
+    evaluate = for node in ev
+      resolve node
   debug "evaluated references: #{inspect evaluate, no, 20, yes}"
-  ignore = options.ignore ? ->
-  ignore = toAST "var IGNORED = #{ignore.toString()};"
-  ignore = ignore[1][0][1][0][1][3][0][1][1]
-  ignore = for node in ignore
-    resolve node
 
-  
-  
+
+  ignore = []
+
+  if options.ignore?
+    ig = toAST "var IGNORED = #{options.ignore.toString()};"
+    ig = ignore[1][0][1][0][1][3][0][1][1]
+    ignore = for node in ig
+      resolve node
   debug "ignored references: #{inspect ignore, no, 20, yes}"
-  ignore = ['mutable','mutateNow','_results'] # TEMPORARY HACK
+
+  # TEMPORARY OVERRIDE THIS SETTING
+  ignore = ['mutable','mutateNow','_results'] 
 
   # Convert the function to AST. This is not the hard part for us.
   ast = toAST "var ROOT = #{func.toString()};"
