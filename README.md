@@ -181,6 +181,14 @@ run src, (output) -> console.log "output: #{output}"
 
 ## Changelog
 
+#### 0.0.6
+
+ * fixed a bug with missing parameters in the options
+ * Added support for "if" expressiion
+ * Simplified "while" expression
+ * Support for blocks "{}"
+ * Added basic unit tests
+
 #### 0.0.5
 
  * Rewrote nearly everything from scratch

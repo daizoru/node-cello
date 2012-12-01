@@ -97,7 +97,7 @@ CParser = (func,options={}) ->
 
   if options.ignore?
     ig = toAST "var IGNORED = #{options.ignore.toString()};"
-    ig = ignore[1][0][1][0][1][3][0][1][1]
+    ig = ig[1][0][1][0][1][3][0][1][1]
     ignore = for node in ig
       resolve node
   debug "ignored references: #{inspect ignore, no, 20, yes}"
@@ -164,17 +164,28 @@ CParser = (func,options={}) ->
         debug pretty nodes
         "#{nodes[1]}#{parse nodes[2]}"
 
+      when 'block'
+        debug 'block'
+        debug pretty nodes
+        "{\n#{parse nodes[1], ind+1}#{indent ind}}\n"
+
+      when 'if'
+        debug "if"
+        debug pretty nodes
+        "#{indent ind}if (#{parse nodes[1]}) #{parse nodes[2], ind}"
+
       when 'while'
         debug "WHILE LOOP"
-        debug pretty nodes[2]
-        cond = parse first, ind
-        body = ""
-        for statement in nodes[2][1]
-          body += parse statement, ind + 1
-        "#{indent ind}while (#{cond}) {\n#{body}#{indent ind}}\n"
+        debug pretty nodes
+        "#{indent ind}while (#{parse nodes[1]}) #{parse nodes[2], ind}"
 
       when 'binary'
         debug "BINARY OPERATION"
+        replaceOperators =
+          '===': '=='
+          '!==': '!='
+
+        first = if first of replaceOperators then replaceOperators[first] else first
         parse(nodes[2]) + " #{first} " + parse(nodes[3])
 
       when 'sub'

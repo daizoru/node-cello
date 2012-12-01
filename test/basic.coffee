@@ -2,7 +2,8 @@
 chai     = require 'chai'
 expect = chai.expect
 
-describe 'cello.C', ->
+describe 'generating source code', ->
+
   generate = C
     indent: ""
     evaluate: -> [ Math.random, Math.round ]
@@ -11,7 +12,6 @@ describe 'cello.C', ->
 
   it 'should support empty programs', (done) ->
     src = generate -> int main = -> 0
-    console.log src
     expect(src).to.equal """int main() {\nreturn 0;\n}\n\n"""
     done()
 
@@ -46,4 +46,29 @@ char * line = strtok(buffer,",");
 return 0;
 }\n\n"""
     done()
+
+describe 'running programs', ->
+
+  it 'should support output to stdout', (done) ->
+
+    gen = C
+      indent: "  "
+      evaluate: -> [ Math.random, Math.round ]
+      ignore: -> []
+      debug: no
+
+    src = gen ->
+      include 'stdio.h'
+      include 'stdlib.h'
+      int x = 40
+      int main = ->
+        printf "hello, "
+        int y = 43 + x / 10
+        printf "result is %i", y
+        0 
+
+    run src, (err, output) ->
+      expect(output).to.be.equal("hello, result is 47")
+      done()
+
 

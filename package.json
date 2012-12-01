@@ -1,7 +1,7 @@
 {
   "name": "cello",
   "description": "Simple DSL to generate simple C programs",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "Julian Bilcke <julian.bilcke@daizoru.com>",
   "scripts"     : {
     "test"      : "node_modules/mocha/bin/mocha --bail --require chai --compilers coffee:coffee-script test/*.coffee",

@@ -5,7 +5,7 @@ options =
   indent: "  "
   evaluate: -> [ Math.random, Math.round ]
   ignore: -> []
-  debug: yes
+  debug: no
 
 src = C(options) -> 
 
