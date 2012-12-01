@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Node-cello by daizoru</title>
+    <title>node-cello by daizoru</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -15,7 +15,7 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Node-cello</h1>
+        <h1>node-cello</h1>
         <p>Simple DSL to generate simple C programs</p>
 
         <p class="view"><a href="https://github.com/daizoru/node-cello">View the Project on GitHub <small>daizoru/node-cello</small></a></p>
@@ -202,17 +202,24 @@ For the moment only a few are supported:</p>
 <li>Implement MUCH MORE C language features</li>
 <li>Implement ALL C language features (well, ideally)</li>
 <li>unit tests</li>
-</ul><h3>More TODO: built-in compiler support?</h3>
-
-<ul>
-<li>add support for an 'inline' mode like in Perl</li>
-<li>autoconfing</li>
-<li>on-the-fly compilation</li>
-<li>execute the binary</li>
-<li>handle the STDIN / STDOUT wrapping</li>
 </ul><h2>Changelog</h2>
 
-<h4>0.0.4</h4>
+<h4>0.0.6</h4>
+
+<ul>
+<li>fixed a bug with missing parameters in the options</li>
+<li>Added support for "if" expressiion</li>
+<li>Simplified "while" expression</li>
+<li>Support for blocks "{}"</li>
+<li>Added basic unit tests</li>
+</ul><h4>0.0.5</h4>
+
+<ul>
+<li>Rewrote nearly everything from scratch</li>
+<li>should be f***ing more robust now</li>
+<li>moved debug scripts to /examples</li>
+<li>experimenting with OpenCL kernel generation (yeah for node-evolve!)</li>
+</ul><h4>0.0.4</h4>
 
 <p>Added basic support for:</p>
 
