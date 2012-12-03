@@ -87,11 +87,14 @@ CParser = (func,options={}) ->
   evaluate = []
   if options.evaluate?
     ev = toAST "var EVALUATED = #{options.evaluate.toString()};"
+    console.log inspect ev, no, 20, yes
     ev = ev[1][0][1][0][1][3][0][1][1] # fuck this shit
-    evaluate = for node in ev
-      resolve node
+    i = 0
+    arr = options.evaluate()
+    evaluate = {}
+    for node in ev
+      evaluate[resolve node] = arr[i++]
   debug "evaluated references: #{inspect evaluate, no, 20, yes}"
-
 
   ignore = []
 
@@ -131,7 +134,7 @@ CParser = (func,options={}) ->
       when 'dot'
         name = resolve nodes
         # try first to evaluate a complex.object.path
-        if name in evaluate
+        if name of evaluate
           "#{eval name}"
         else if name in ignore
           ""
@@ -141,7 +144,7 @@ CParser = (func,options={}) ->
       when 'name'
         name = resolve nodes
         # try first to evaluate a simple name
-        if name in evaluate
+        if name of evaluate
           "#{eval name}"
         else if name in ignore
           ""
@@ -167,7 +170,19 @@ CParser = (func,options={}) ->
       when 'block'
         debug 'block'
         debug pretty nodes
-        "{\n#{parse nodes[1], ind+1}#{indent ind}}\n"
+        statements = for n in nodes[1]
+          parse n, ind+1
+        "{\n#{statements.join('')}#{indent ind}}\n"
+      
+      when 'break'
+        debug 'break'
+        debug pretty nodes
+        "#{indent ind}break;\n"
+
+      when 'continue'
+        debug 'continue'
+        debug pretty nodes
+        "#{indent ind}continue;\n"
 
       when 'if'
         debug "if"
@@ -254,9 +269,46 @@ CParser = (func,options={}) ->
           for node in cut
             buff += parse node, ind
           buff
-        else if callee in evaluate
-          code = pro.gen_code nodes, {}
-          "#{eval code}"
+        else if callee of evaluate
+          debug "callee: #{callee} params: #{params}"
+          debug "function: #{evaluate[callee]}"
+
+          TMP = ->
+          fakeAST = [ 
+            'toplevel'
+            [ 
+              [ 
+                'var'
+                [ 
+                  [ 
+                    'TMP'
+                     [ 
+                       'function'
+                        null
+                        []
+                        [ 
+                          [ 
+                            'return'
+                            params[0]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+
+          debug "fakeAST: #{pretty fakeAST}"
+          code = pro.gen_code fakeAST, {}
+          debug "code: #{code}"
+          eval code
+          debug "TMP: #{TMP}  res: #{TMP()}"
+          result = evaluate[callee] TMP()
+          if isString result
+            "\"#{result}\""
+          else # else number, probably.
+            "#{result}"
         else
           param1 = params[0]
           debug "PARAM 1:"

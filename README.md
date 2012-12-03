@@ -170,16 +170,17 @@ src = C -> main = -> printf "hello world"
 run src, (output) -> console.log "output: #{output}"
 ```
 
-## TODO
+## WISHLIST FOR SANTA
 
-*
-* Find a way to support typed parameters (eg. type inference?)
-* Implement more C language features, like true function declaration (with types)
-* Implement MUCH MORE C language features
-* Implement ALL C language features (well, ideally)
-* unit tests
+ * Type inference (eg. that "i = 0" will convert to "int i = 0")
+ * Implement ALL C language features
+ * complete unit tests
 
 ## Changelog
+
+#### 0.0.8
+
+ * Added break and continue
 
 #### 0.0.7
 
