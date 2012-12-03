@@ -178,12 +178,9 @@ run src, (output) -> console.log "output: #{output}"
 
 ## Changelog
 
-#### 0.0.8
-
- * Added break and continue
-
 #### 0.0.7
 
+ * Added support for break and continue
  * added support for functions (eg. main) args
  * added support for command line args (when calling run())
 
