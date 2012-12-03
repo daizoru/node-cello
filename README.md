@@ -172,6 +172,13 @@ run src, (output) -> console.log "output: #{output}"
 
 ## WISHLIST FOR SANTA
 
+ * find an elegant solution to the void/const issue (they are forbidden in Coffee/JavaScript)
+ * support NULL
+ * support typedef
+ * support struct
+ * add more doc (eg. the if / while example)
+ * support for loops
+ * support pointer casting
  * Type inference (eg. that "i = 0" will convert to "int i = 0")
  * Implement ALL C language features
  * complete unit tests
