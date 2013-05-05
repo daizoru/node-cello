@@ -245,6 +245,10 @@ program.on 'stderr',  (buff) ->  console.log "demo.stderr: " + buff.toString()
 
 ## Changelog
 
+#### 0.1.1
+
+ * just fixed typo and the doc, to have a better page on NPM's website
+ 
 #### 0.1.0
 
  * added a new Program class
