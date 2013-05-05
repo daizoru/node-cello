@@ -12,7 +12,7 @@ describe 'generating source code', ->
 
   it 'should support empty programs', (done) ->
     src = generate -> int main = -> return 0
-    expect(src).to.equal """int main() {\nreturn 0;\n}\n\n"""
+    expect(src).to.equal """int main() {\nreturn 0;}\n\n"""
     done()
 
   it 'should support includes', (done) ->

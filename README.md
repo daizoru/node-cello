@@ -172,12 +172,18 @@ run src, (output) -> console.log "output: #{output}"
 
 ## WISHLIST FOR SANTA
 
- * find an elegant solution to the void/const issue (they are forbidden in Coffee/JavaScript)
- * support NULL
+ * support for inline C statements, as lone strings (eg. """(void *) i;""")
+ * support for Class: http://stackoverflow.com/a/840703
+ * support for new (either malloc, or just ignore it?, but at least it will feel a bit more natural)
+ * support for function pointers allocation
+ * support for &? (altough it's mostly used for func pointers, and it is implicit)
+ * find an elegant solution to support void (which is forbidden in Coffee/JavaScript)
+ * find an elegant solution to support const (which is forbidden in Coffee/JavaScript)
+ * support for NULL
  * support typedef
  * support struct
  * add more doc (eg. the if / while example)
- * support for loops
+ * support for loops (by not translating directly but generating boilerplate)
  * support pointer casting
  * Type inference (eg. that "i = 0" will convert to "int i = 0")
  * Implement ALL C language features
@@ -185,6 +191,10 @@ run src, (output) -> console.log "output: #{output}"
 
 ## Changelog
 
+#### 0.0.8
+
+ * Support for include 'test.h' and include '<stdlib.h>'
+ 
 #### 0.0.7
 
  * Added support for break and continue

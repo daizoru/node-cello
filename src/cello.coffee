@@ -3,6 +3,7 @@
 fs = require 'fs'
 {inspect} = require 'util'
 spawn = require('child_process').spawn
+Stream = require 'stream'
 
 tmp = require 'tmp'
 
@@ -19,6 +20,8 @@ isString    = (obj) -> !!(obj is '' or (obj and obj.charCodeAt and obj.substr))
 isNumber    = (obj) -> (obj is +obj) or toString.call(obj) is '[object Number]'
 isBoolean   = (obj) -> obj is true or obj is false
 isString    = (obj) -> !!(obj is '' or (obj and obj.charCodeAt and obj.substr))
+
+pretty = (n) -> "#{inspect n, no, 20, yes}"
 
 exports.toAST = toAST = (f) -> jsp.parse f.toString()
 
@@ -87,14 +90,14 @@ CParser = (func,options={}) ->
   evaluate = []
   if options.evaluate?
     ev = toAST "var EVALUATED = #{options.evaluate.toString()};"
-    console.log inspect ev, no, 20, yes
+    debug pretty ev
     ev = ev[1][0][1][0][1][3][0][1][1] # fuck this shit
     i = 0
     arr = options.evaluate()
     evaluate = {}
     for node in ev
       evaluate[resolve node] = arr[i++]
-  debug "evaluated references: #{inspect evaluate, no, 20, yes}"
+  debug "evaluated references: " + pretty evaluate
 
   ignore = []
 
@@ -103,7 +106,7 @@ CParser = (func,options={}) ->
     ig = ig[1][0][1][0][1][3][0][1][1]
     ignore = for node in ig
       resolve node
-  debug "ignored references: #{inspect ignore, no, 20, yes}"
+  debug "ignored references: " + pretty ignore
 
   # TEMPORARY OVERRIDE THIS SETTING
   ignore = ['mutable','mutateNow','_results'] 
@@ -111,16 +114,15 @@ CParser = (func,options={}) ->
   # Convert the function to AST. This is not the hard part for us.
   ast = toAST "var ROOT = #{func.toString()};"
 
-  debug "AST: #{inspect ast, no, 20, yes}"
+  debug "AST: "+ pretty ast
   
   includes = []
 
   scopes = [{}]
   scope = 0
 
-  pretty = (n) -> "#{inspect n, no, 20, yes}"
 
-  output = do parse = (nodes=ast, ind=0) ->
+  output = do parse = (nodes=ast, ind=0, parent=undefined) ->
     return "" unless isArray nodes
     type = nodes[0]
     first = nodes[1]
@@ -159,39 +161,49 @@ CParser = (func,options={}) ->
 
       when 'unary-postfix'
         debug "unary postfix"
-        debug pretty nodes
+        #debug pretty nodes
         "#{parse nodes[2]}#{nodes[1]}"
 
       when 'unary-prefix'
         debug "unary prefix"
-        debug pretty nodes
+        #debug pretty nodes
         "#{nodes[1]}#{parse nodes[2]}"
 
       when 'block'
         debug 'block'
-        debug pretty nodes
+        #debug pretty nodes
+
+        i = -1
         statements = for n in nodes[1]
-          parse n, ind+1
-        "{\n#{statements.join('')}#{indent ind}}\n"
+          i++
+          stat = parse n, ind + 1
+          # we might have ghost statements because of the Coffee to JS conversion
+          # we just ignore them (no trailing ;\n)
+          #if stat.length > 0
+          #  stat += ";"
+          #  if i <= nodes[1].length - 1
+          #    stat += "\n"
+          stat
+        "{\n#{statements.join('')}#{indent ind}}"
       
       when 'break'
         debug 'break'
-        debug pretty nodes
-        "#{indent ind}break;\n"
+        #debug pretty nodes
+        "#{indent ind}break"
 
       when 'continue'
         debug 'continue'
-        debug pretty nodes
-        "#{indent ind}continue;\n"
+        #debug pretty nodes
+        "#{indent ind}continue"
 
       when 'if'
         debug "if"
-        debug pretty nodes
+        #debug pretty nodes
         "#{indent ind}if (#{parse nodes[1]}) #{parse nodes[2], ind}"
 
       when 'while'
         debug "WHILE LOOP"
-        debug pretty nodes
+        #debug pretty nodes
         "#{indent ind}while (#{parse nodes[1]}) #{parse nodes[2], ind}"
 
       when 'binary'
@@ -220,14 +232,25 @@ CParser = (func,options={}) ->
         if first[0] is 'call' and first[1][1] in TYPES
           parse first
         else
-          "#{indent ind}return #{parse first};\n"
+          "#{indent ind}return #{parse first}" + ";\n"
 
       when 'assign'
         debug "ASSIGN"
         if nodes[3][0] is 'function'
           debug "FUNCTION ASSIGNEMENT"
+          debug nodes
+          i = -1
           statements = for n in nodes[3][3]
-            parse n, ind + 1
+            i++
+            stat = parse n, ind + 1
+            # we might have ghost statements because of the Coffee to JS conversion
+            # we just ignore them (no trailing ;\n)
+            #if stat.length > 0
+            #  stat += ";"
+            #  if i < nodes[3][3].length - 1
+            #    stat += "\n"
+            stat
+
           debug "LOOKING FOR  DEFINITION: #{pretty nodes[3]}"
           nbArgs = nodes[3][2].length
           args = []
@@ -237,8 +260,16 @@ CParser = (func,options={}) ->
               arg.trim().replace(';','').replace('\n','')
             statements = statements[nbArgs + 1..]
 
-          #debug pretty args
-          parse(nodes[2]) + "(#{args.join(',')}) {\n" + statements.join('') + "}\n"
+
+          # It is not very prett: we look for the parent
+          if parent? and parent[1][1] is 'struct'
+            # dirty hack: we replace the latest element directly in the final string (dirty dirty)
+            if statements.length
+              #debug "replacing #{statements[statements.length - 1]}"
+              statements[statements.length - 1] = statements[statements.length - 1].replace('return ','')
+            parse(nodes[2]) + " {\n" + statements.join('') + "\n#{indent ind}};\n"
+          else
+            parse(nodes[2]) + "(#{args.join(',')}) {\n" + statements.join('') + "}\n"
         else
           debug "CLASSIC ASSIGN"
           parse(nodes[2]) + " = " + parse(nodes[3])
@@ -250,7 +281,11 @@ CParser = (func,options={}) ->
         if resolve(nodes[1][1]) is 'include'
           #debug "INCLUDE"
           #debug pretty nodes[1][2]
-          "#{indent ind}#include <#{nodes[1][2][0][1]}>\n"
+          included = nodes[1][2][0][1]
+          if included[0] is '<' and included[included.length - 1] is '>'
+            "#{indent ind}#include #{included}\n"
+          else
+            "#{indent ind}#include \"#{included}\"\n"
         else
           indent(ind) + parse(first, ind + 1) + ";\n"
 
@@ -273,31 +308,9 @@ CParser = (func,options={}) ->
           debug "callee: #{callee} params: #{params}"
           debug "function: #{evaluate[callee]}"
 
+          # magic hack to be able to evaluate coffee-script code
           TMP = ->
-          fakeAST = [ 
-            'toplevel'
-            [ 
-              [ 
-                'var'
-                [ 
-                  [ 
-                    'TMP'
-                     [ 
-                       'function'
-                        null
-                        []
-                        [ 
-                          [ 
-                            'return'
-                            params[0]
-                          ]
-                        ]
-                      ]
-                    ]
-                  ]
-                ]
-              ]
-            ]
+          fakeAST = ['toplevel', [['var', [['TMP', ['function', null, [], [['return', params[0]]]]]]]]]
 
           debug "fakeAST: #{pretty fakeAST}"
           code = pro.gen_code fakeAST, {}
@@ -315,7 +328,7 @@ CParser = (func,options={}) ->
           debug pretty param1
           if callee in TYPES
             debug "typed assignement"
-            "#{callee} #{parse param1}"
+            "#{callee} #{parse param1, 0, nodes}"
           else
             if param1[0] is 'call' and param1[2][0][0] is 'assign'
               debug "two-level typing declaration"
@@ -324,6 +337,7 @@ CParser = (func,options={}) ->
           
               params = for p in params
                 parse p, ind
+
               "#{callee}(#{params.join ','})"
         ###
             buff = callee # type 1
@@ -392,6 +406,8 @@ exports.compile = (src, onComplete=->) ->
       onComplete gcc.stdout
     gcc.stdin.end()
 
+
+
 exports.run = (src, a, b) ->
   # TODO: add options
   onComplete = ->
@@ -416,48 +432,44 @@ exports.run = (src, a, b) ->
 
     _gccstderr = ""
     gcc.stderr.on 'data', (data) ->
-     _gccstderr += data.toString()
+      #debug "gcc stderr data: #{data}"
+      _gccstderr += data.toString()
 
     gcc.on 'exit', (code, signal) ->
       if code isnt 0
+        #debug "gcc err data: #{data}"
         onComplete _gccstderr, ""
         return
 
-      #console.log "gcc exit code is: #{code}"
-      #console.log 'gcc terminated due to receipt of signal '+signal
+      #debug "gcc exit code is: #{code}"
+      #debug 'gcc terminated due to receipt of signal '+signal
       prog = spawn "./#{binFile}", args
-      prog.stdin.end()
+
       _stdout = ""
       prog.stdout.on 'data', (data) ->
+        console.log "program stdout data: #{data}"
         _stdout += data.toString()
 
       _stderr = ""
       prog.stderr.on 'data', (data) ->
+        console.log "program stderr data: #{data}"
         _stderr += data.toString()
 
-      prog.on 'exit', (code, signal) ->
+      prog.on 'close', (code, signal) ->
         if code isnt 0
           #console.log "code is: #{code}"
           #  #throw new Error "process failed: #{_stderr}"
           onComplete _stderr, ""
         else
-          fs.unlink binFile, ->
-            fs.unlink srcFile, ->
-              onComplete undefined, _stdout
-    
+          #fs.unlinkSync binFile
+          #fs.unlinkSync srcFile
+          onComplete undefined, _stdout
+      
+      prog.stdin.write "hello world", ->
+        prog.stdin.end()
+
+
     gcc.stdin.end()
-
-###
-TODO
-
-we cannot use the coffee-script parse, because we need to parse at runtime,
-when the code is already JS
-
-so we need to strip out variables auto-generated by coffee, basically
-_results
-
-
-###
 
 exports.C = C = (input) ->
   options = {}
@@ -467,3 +479,61 @@ exports.C = C = (input) ->
     options = input
     (input) -> CParser input, options
 
+
+
+class Program extends Stream
+  constructor: (@src) ->
+    console.log @src
+    @_stdin = ""
+    @_stdout = ""
+    @prog = {}
+
+  run: =>
+    args = for x in arguments
+      x
+    @srcFile = 'output.c'
+    @binFile = 'output'
+    console.log "writing file"
+    fs.writeFile @srcFile, @src, (err) =>
+      throw err if err
+      gcc = spawn 'gcc', [@srcFile, '-o', @binFile]
+      gcc.stderr.on 'data', (data) =>
+        @emit 'gcc_err', data
+      gcc.on 'exit', (code, signal) =>
+        @emit 'gcc_exit', {code, signal}
+        return unless code is 0
+        console.log "program built"
+        @prog = spawn "./#{@binFile}", args[0...args.length - 1]
+        @prog.stdout.on 'data', (data)  => 
+          @emit 'stdout', data
+        @prog.stderr.on 'data', (data)  => 
+          @emit 'stderr', data
+        @prog.on 'close', (code, signal) => 
+          @emit 'close', {code, signal}
+          #if code isnt 0
+          #fs.unlinkSync @binFile
+          #fs.unlinkSync @srcFile
+
+        #@emit 'ready', @prog
+        do args[args.length - 1]
+      gcc.stdin.end()
+    @
+  write: (data, encoding, cb) =>
+    unless @prog?.stdout?
+      throw new Error "cannot write to program, because it is not built"
+    #console.log "writing to stdin"
+    @prog.stdin.write data, encoding, cb
+    @
+    
+  close: (cb) =>
+    unless @prog?.stdin?
+      throw new Error "cannot write to program, because it is not built"
+    if cb?
+      @prog.on 'close', (code, signal) ->
+        cb {code, signal}
+    @prog.stdin.end()
+    @
+
+exports.Program = Program
+
+  # return a wrapped process

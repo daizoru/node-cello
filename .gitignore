@@ -1,3 +1,7 @@
+output
+output.c
+*.c
+*.o
 ocello.*
 .*
 *.log

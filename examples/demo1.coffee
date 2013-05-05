@@ -5,7 +5,7 @@ options =
   indent: "  "
   evaluate: -> [ Math.random, Math.round ]
   ignore: -> []
-  debug: no
+  debug: yes
 
 src = C(options) -> 
   include 'stdio.h'
@@ -38,9 +38,11 @@ src = C(options) ->
     0 
 
 console.log "#{src}"
-if yes
-  run src, (err, output) ->
-    if err
-      throw new Error err.red
-    else
-      console.log "#{output}".green
+console.log "running program"
+run src, (err, output) ->
+  console.log "program ran"
+  if err
+    throw new Error err.red
+  else
+    console.log "program terminated"
+    console.log "#{output}".green
