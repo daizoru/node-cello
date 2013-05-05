@@ -58,7 +58,7 @@ run src, (output) -> console.log "output: #{output}"
 
 ### Communicating
 
-You can execute a program, and read/write from it, as it were a bi-directional stream:
+You can execute a program, and read/write from it, as it was a bi-directional stream:
 
 ```CoffeeScript
 {C, Program} = require 'cello'
