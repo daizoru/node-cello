@@ -1,34 +1,34 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>node-cello by daizoru</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
+    <title>node-cello by daizoru</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
+    <header>
+      <div class="inner">
         <h1>node-cello</h1>
-        <p>Simple DSL to generate simple C programs</p>
+        <h2>Simple DSL to generate simple C programs</h2>
+        <a href="https://github.com/daizoru/node-cello" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
 
-        <p class="view"><a href="https://github.com/daizoru/node-cello">View the Project on GitHub <small>daizoru/node-cello</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/daizoru/node-cello/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/daizoru/node-cello/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/daizoru/node-cello">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h1>node-cello</h1>
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>node-cello</h1>
 
 <p><em>a simple DSL to generate simple C programs</em></p>
 
@@ -55,14 +55,52 @@
 <li>it's a dependency of another project</li>
 </ol><p>Thank you for your understanding!</p>
 
-<h2>Demo 1</h2>
+<h2>Documentation</h2>
+
+<h3>Options</h3>
+
+<p>You can pass parameters to cello.
+For the moment only a few are supported:</p>
+
+<ul>
+<li>indent: the indentation string to use (eg. "   " or "\t")</li>
+<li>debug: some debug messages - for development only</li>
+<li>evaluate: a func which return a list of JS references to interpret BEFORE code generation</li>
+<li>ignore: a func which return a list of JS references to ignore (won't be translated to C)</li>
+</ul><p>Example:</p>
+
+<div class="highlight"><pre><span class="nv">src = </span><span class="nx">C</span><span class="nf">(indent: "  ", debug: yes) -&gt;</span> 
+  <span class="nv">main = </span><span class="nf">-&gt;</span>
+</pre></div>
+
+<h3>Compiling</h3>
+
+<p>Experimental support of gcc is implemented:</p>
+
+<div class="highlight"><pre><span class="p">{</span><span class="nx">C</span><span class="p">,</span> <span class="nx">run</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
+<span class="nv">src = </span><span class="nx">C</span> <span class="nf">-&gt;</span> <span class="nv">main = </span><span class="nf">-&gt;</span> <span class="nx">printf</span> <span class="s">"hello world"</span>
+<span class="nx">run</span> <span class="nx">src</span><span class="p">,</span> <span class="nf">(output) -&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"output: </span><span class="si">#{</span><span class="nx">output</span><span class="si">}</span><span class="s">"</span>
+</pre></div>
+
+<h3>Communicating</h3>
+
+<p>You can execute a program, and write/read from it, as it was a bi-directional stream:</p>
+
+<div class="highlight"><pre><span class="p">{</span><span class="nx">C</span><span class="p">,</span> <span class="nx">run</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
+<span class="nv">src = </span><span class="nx">C</span> <span class="nf">-&gt;</span> <span class="nv">main = </span><span class="nf">-&gt;</span> <span class="nx">printf</span> <span class="s">"hello world"</span>
+<span class="nx">run</span> <span class="nx">src</span><span class="p">,</span> <span class="nf">(output) -&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"output: </span><span class="si">#{</span><span class="nx">output</span><span class="si">}</span><span class="s">"</span>
+</pre></div>
+
+<h2>Demos</h2>
+
+<h3>Demo 1</h3>
 
 <div class="highlight"><pre><span class="p">{</span> <span class="nx">C</span><span class="p">,</span> <span class="nx">run</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
 
-<span class="nv">src = </span><span class="nx">C</span> <span class="o">-&gt;</span>
+<span class="nv">src = </span><span class="nx">C</span> <span class="nf">-&gt;</span>
   <span class="nx">include</span> <span class="s">'stdio.h'</span>
   <span class="nx">int</span> <span class="nv">x = </span><span class="mi">40</span>
-  <span class="nv">main = </span><span class="o">-&gt;</span>
+  <span class="nv">main = </span><span class="nf">-&gt;</span>
    <span class="nx">int</span> <span class="nv">y = </span><span class="mi">43</span> <span class="o">+</span> <span class="nx">x</span>
    <span class="nx">printf</span> <span class="s">"hello"</span>
 
@@ -83,14 +121,14 @@
 
 <p>Then it will run and print 'hello'. Magic? yes. </p>
 
-<h2>Demo 2</h2>
+<h3>Demo 2</h3>
 
 <div class="highlight"><pre><span class="p">{</span><span class="nx">C</span><span class="p">,</span> <span class="nx">run</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
 
 <span class="nv">options =</span>
   <span class="nv">indent: </span><span class="s">"  "</span>
-  <span class="nv">evaluate: </span><span class="o">-&gt;</span> <span class="p">[</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">,</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span> <span class="p">]</span>
-  <span class="nv">ignore: </span><span class="o">-&gt;</span> <span class="p">[]</span>
+  <span class="nv">evaluate: </span><span class="nf">-&gt;</span> <span class="p">[</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">,</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span> <span class="p">]</span>
+  <span class="nv">ignore: </span><span class="nf">-&gt;</span> <span class="p">[]</span>
   <span class="nv">debug: </span><span class="kc">no</span>
 
 <span class="nv">src = </span><span class="nx">C</span><span class="nf">(options) -&gt;</span> 
@@ -99,7 +137,7 @@
 
   <span class="nx">int</span> <span class="nv">x = </span><span class="mi">40</span>
 
-  <span class="nv">main = </span><span class="o">-&gt;</span>
+  <span class="nv">main = </span><span class="nf">-&gt;</span>
 
     <span class="nx">printf</span> <span class="s">"hello, "</span>
     <span class="nx">int</span> <span class="nv">y = </span><span class="mi">43</span> <span class="o">+</span> <span class="nx">x</span> <span class="o">/</span> <span class="mi">10</span>
@@ -165,46 +203,73 @@
 <pre><code>hello
 </code></pre>
 
-<h2>Documentation</h2>
+<h3>Demo 3</h3>
 
-<h3>Options</h3>
+<p>This demo shows how to communicate with the sub C program:</p>
 
-<p>You can pass parameters to cello.
-For the moment only a few are supported:</p>
+<div class="highlight"><pre><span class="p">{</span><span class="nx">C</span><span class="p">,</span> <span class="nx">Program</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
 
-<ul>
-<li>indent: the indentation string to use (eg. "   " or "\n")</li>
-<li>debug: some debug messages - for development only</li>
-<li>evaluate: a func which return a list of JS references to interpret BEFORE code generation</li>
-<li>ignore: a func which return a list of JS references to ignore (won't be translated to C)</li>
-</ul><p>Example:</p>
+<span class="nv">program = </span><span class="k">new</span> <span class="nx">Program</span> <span class="nx">C</span><span class="p">()</span> <span class="nf">-&gt;</span>
+  <span class="nx">include</span> <span class="s">'stdio.h'</span>
+  <span class="nx">int</span> <span class="nv">main = </span><span class="nf">-&gt;</span>
+    <span class="nx">setbuf</span> <span class="nx">stdout</span><span class="p">,</span> <span class="nx">NULL</span>
+    <span class="nx">char</span> <span class="nv">c = </span><span class="nx">fgetc</span> <span class="nx">stdin</span>
+    <span class="k">while</span> <span class="nx">c</span> <span class="o">isnt</span> <span class="nx">EOF</span>
+      <span class="nx">printf</span> <span class="s">"%c"</span><span class="p">,</span> <span class="nx">c</span>
+      <span class="nv">c = </span><span class="nx">fgetc</span> <span class="nx">stdin</span>
+    <span class="mi">0</span>
 
-<div class="highlight"><pre><span class="nv">src = </span><span class="nx">C</span><span class="nf">(indent: "  ", debug: yes) -&gt;</span> 
-  <span class="nv">main = </span><span class="o">-&gt;</span>
+<span class="c1"># call the program, here with an empty argument list</span>
+<span class="nx">program</span><span class="p">.</span><span class="nx">run</span> <span class="p">[],</span> <span class="nf">-&gt;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"demo.program started"</span>
+  <span class="nx">program</span><span class="p">.</span><span class="nx">write</span> <span class="s">"hello"</span>
+  <span class="nx">program</span><span class="p">.</span><span class="nx">write</span> <span class="s">"world"</span>
+  <span class="nx">program</span><span class="p">.</span><span class="nx">close</span> <span class="nf">({code, signal}) -&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"closed: </span><span class="si">#{</span><span class="nx">code</span><span class="si">}</span><span class="s">"</span>
+
+<span class="nx">program</span><span class="p">.</span><span class="nx">on</span> <span class="s">'stdout'</span><span class="p">,</span>  <span class="nf">(buff) -&gt;</span>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"output: "</span> <span class="o">+</span> <span class="nx">buff</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+<span class="nx">program</span><span class="p">.</span><span class="nx">on</span> <span class="s">'stderr'</span><span class="p">,</span>  <span class="nf">(buff) -&gt;</span>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"demo.stderr: "</span> <span class="o">+</span> <span class="nx">buff</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
 </pre></div>
 
-<h3>Compiling</h3>
-
-<p>Experimental support of gcc is implemented:</p>
-
-<div class="highlight"><pre><span class="p">{</span><span class="nx">C</span><span class="p">,</span> <span class="nx">run</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
-<span class="nv">src = </span><span class="nx">C</span> <span class="o">-&gt;</span> <span class="nv">main = </span><span class="o">-&gt;</span> <span class="nx">printf</span> <span class="s">"hello world"</span>
-<span class="nx">run</span> <span class="nx">src</span><span class="p">,</span> <span class="nf">(output) -&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"output: </span><span class="si">#{</span><span class="nx">output</span><span class="si">}</span><span class="s">"</span>
-</pre></div>
-
-<h2>TODO</h2>
-
-<p>*</p>
+<h2>WISHLIST FOR SANTA</h2>
 
 <ul>
-<li>Find a way to support typed parameters (eg. type inference?)</li>
-<li>Implement more C language features, like true function declaration (with types)</li>
-<li>Implement MUCH MORE C language features</li>
-<li>Implement ALL C language features (well, ideally)</li>
-<li>unit tests</li>
+<li>support for inline C statements, as lone strings (eg. """(void *) i;""")</li>
+<li>support for Class: <a href="http://stackoverflow.com/a/840703">http://stackoverflow.com/a/840703</a>
+</li>
+<li>support for new (either malloc, or just ignore it?, but at least it will feel a bit more natural)</li>
+<li>support for function pointers allocation</li>
+<li>support for &amp;? (altough it's mostly used for func pointers, and it is implicit)</li>
+<li>find a more elegant solution than using 'Void' as alias of 'void'?</li>
+<li>find an elegant solution to support const (which is forbidden in Coffee/JavaScript)</li>
+<li>support typedef</li>
+<li>support struct</li>
+<li>add more doc (eg. the if / while example)</li>
+<li>support for loops (by not translating directly but generating boilerplate)</li>
+<li>support pointer casting</li>
+<li>Type inference (eg. that "i = 0" will convert to "int i = 0")</li>
+<li>Implement ALL C language features</li>
+<li>more unit tests</li>
+<li>more CoffeeScript magic (eg. doing more implicit stuff such as: x = y for x in [0...2])</li>
 </ul><h2>Changelog</h2>
 
-<h4>0.0.6</h4>
+<h4>0.1.0</h4>
+
+<ul>
+<li>added a new Program class</li>
+<li>support for bi-directional communication using unix pipes</li>
+</ul><h4>0.0.9 - unreleased</h4>
+
+<h4>0.0.8 - unreleased</h4>
+
+<ul>
+<li>Support for include 'test.h' and include ''</li>
+</ul><h4>0.0.7</h4>
+
+<ul>
+<li>Added support for break and continue</li>
+<li>added support for functions (eg. main) args</li>
+<li>added support for command line args (when calling run())</li>
+</ul><h4>0.0.6</h4>
 
 <ul>
 <li>fixed a bug with missing parameters in the options</li>
@@ -250,13 +315,25 @@ For the moment only a few are supported:</p>
 <ul>
 <li>Basic features are supported</li>
 </ul>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/daizoru">daizoru</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/daizoru/node-cello/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/daizoru/node-cello/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/daizoru/node-cello"></a> is maintained by <a href="https://github.com/daizoru">daizoru</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
+
+  
   </body>
 </html>
