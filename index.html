@@ -84,11 +84,23 @@ For the moment only a few are supported:</p>
 
 <h3>Communicating</h3>
 
-<p>You can execute a program, and write/read from it, as it was a bi-directional stream:</p>
+<p>You can execute a program, and read/write from it, as it were a bi-directional stream:</p>
 
-<div class="highlight"><pre><span class="p">{</span><span class="nx">C</span><span class="p">,</span> <span class="nx">run</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
-<span class="nv">src = </span><span class="nx">C</span> <span class="nf">-&gt;</span> <span class="nv">main = </span><span class="nf">-&gt;</span> <span class="nx">printf</span> <span class="s">"hello world"</span>
-<span class="nx">run</span> <span class="nx">src</span><span class="p">,</span> <span class="nf">(output) -&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"output: </span><span class="si">#{</span><span class="nx">output</span><span class="si">}</span><span class="s">"</span>
+<div class="highlight"><pre><span class="p">{</span><span class="nx">C</span><span class="p">,</span> <span class="nx">Program</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'cello'</span>
+<span class="nv">src = </span><span class="nx">C</span> <span class="nf">-&gt;</span> <span class="nv">main = </span><span class="nf">-&gt;</span> 
+  <span class="c1"># put code that reads from STDIN and write to</span>
+  <span class="c1"># STDOUT here (see examples/pipeline.coffee)</span>
+<span class="nv">program = </span><span class="k">new</span> <span class="nx">Program</span> <span class="nx">src</span>
+<span class="nx">program</span><span class="p">.</span><span class="nx">run</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">..],</span> <span class="nf">-&gt;</span>
+
+  <span class="c1"># bind to output events</span>
+  <span class="nx">program</span><span class="p">.</span><span class="nx">on</span> <span class="s">'stdout'</span><span class="p">,</span> <span class="nf">(buff)           -&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">buff</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+  <span class="nx">program</span><span class="p">.</span><span class="nx">on</span> <span class="s">'stderr'</span><span class="p">,</span> <span class="nf">(buff)           -&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">buff</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+  <span class="nx">program</span><span class="p">.</span><span class="nx">on</span> <span class="s">'close'</span><span class="p">,</span>  <span class="nf">({code, signal}) -&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">code</span>   
+
+  <span class="c1"># do stuff</span>
+  <span class="nx">program</span><span class="p">.</span><span class="nx">write</span> <span class="s">"hello world"</span>
+  <span class="nx">program</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span>
 </pre></div>
 
 <h2>Demos</h2>
