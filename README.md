@@ -141,6 +141,34 @@ with output:
 hello
 ```
 
+### Demo 3
+
+This demo shows how to communicate with the sub C program:
+
+```CoffeeScript
+{C, Program} = require 'cello'
+
+program = new Program C() ->
+  include 'stdio.h'
+  int main = ->
+    setbuf stdout, NULL
+    char c = fgetc stdin
+    while c isnt EOF
+      printf "%c", c
+      c = fgetc stdin
+    0
+
+program.run [], ->
+  console.log "demo.program started"
+  program.write "hello"
+  program.write "world"
+  program.close ({code, signal}) -> console.log "closed: #{code}"
+
+program.on 'stdout',  (buff) ->  console.log "output: " + buff.toString()
+program.on 'stderr',  (buff) ->  console.log "demo.stderr: " + buff.toString()
+```
+
+
 ## Documentation
 
 ### Options
