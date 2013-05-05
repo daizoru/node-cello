@@ -158,6 +158,7 @@ program = new Program C() ->
       c = fgetc stdin
     0
 
+# call the program, here with an empty argument list
 program.run [], ->
   console.log "demo.program started"
   program.write "hello"
@@ -176,7 +177,7 @@ program.on 'stderr',  (buff) ->  console.log "demo.stderr: " + buff.toString()
 You can pass parameters to cello.
 For the moment only a few are supported:
 
-* indent: the indentation string to use (eg. "   " or "\n")
+* indent: the indentation string to use (eg. "   " or "\t")
 * debug: some debug messages - for development only
 * evaluate: a func which return a list of JS references to interpret BEFORE code generation
 * ignore: a func which return a list of JS references to ignore (won't be translated to C)
