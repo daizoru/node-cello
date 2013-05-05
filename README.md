@@ -61,9 +61,21 @@ run src, (output) -> console.log "output: #{output}"
 You can execute a program, and read/write from it, as it were a bi-directional stream:
 
 ```CoffeeScript
-{C, run} = require 'cello'
-src = C -> main = -> printf "hello world"
-run src, (output) -> console.log "output: #{output}"
+{C, Program} = require 'cello'
+src = C -> main = -> 
+  # put code that reads from STDIN and write to
+  # STDOUT here (see examples/pipeline.coffee)
+program = new Program src
+program.run process.argv[1..], ->
+   
+  # bind to output events
+  program.on 'stdout', (buff)           -> console.log buff.toString()
+  program.on 'stderr', (buff)           -> console.log buff.toString()
+  program.on 'close',  ({code, signal}) -> console.log code   
+
+  # do stuff
+  program.write "hello world"
+  program.close()
 ```
 
 ## Demos
