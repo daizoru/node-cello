@@ -58,7 +58,7 @@ run src, (output) -> console.log "output: #{output}"
 
 ### Communicating
 
-You can execute a program, and write/read from it, as it was a bi-directional stream:
+You can execute a program, and read/write from it, as it were a bi-directional stream:
 
 ```CoffeeScript
 {C, run} = require 'cello'
@@ -237,7 +237,7 @@ program.on 'stderr',  (buff) ->  console.log "demo.stderr: " + buff.toString()
 
  * added a new Program class
  * support for bi-directional communication using unix pipes
- 
+
 
 #### 0.0.9 - unreleased
 #### 0.0.8 - unreleased
