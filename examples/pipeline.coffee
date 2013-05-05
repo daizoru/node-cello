@@ -1,11 +1,6 @@
 #!/usr/bin/coffee
 
-# normally you should use the $ as a prefix for variables names
-# that act as a pointer.
-# that node-cello just translate the raw AST
-{C, run, Program} = require 'cello'
-
-after  = (t,f) -> setTimeout f, t
+{C, Program} = require 'cello'
 
 config = C
   indent: "  "

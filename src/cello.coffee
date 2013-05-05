@@ -447,12 +447,12 @@ exports.run = (src, a, b) ->
 
       _stdout = ""
       prog.stdout.on 'data', (data) ->
-        console.log "program stdout data: #{data}"
+        #console.log "program stdout data: #{data}"
         _stdout += data.toString()
 
       _stderr = ""
       prog.stderr.on 'data', (data) ->
-        console.log "program stderr data: #{data}"
+        #console.log "program stderr data: #{data}"
         _stderr += data.toString()
 
       prog.on 'close', (code, signal) ->
@@ -483,7 +483,7 @@ exports.C = C = (input) ->
 
 class Program extends Stream
   constructor: (@src) ->
-    console.log @src
+    #console.log @src
     @_stdin = ""
     @_stdout = ""
     @prog = {}
@@ -493,7 +493,7 @@ class Program extends Stream
       x
     @srcFile = 'output.c'
     @binFile = 'output'
-    console.log "writing file"
+    #console.log "writing file"
     fs.writeFile @srcFile, @src, (err) =>
       throw err if err
       gcc = spawn 'gcc', [@srcFile, '-o', @binFile]
@@ -502,7 +502,7 @@ class Program extends Stream
       gcc.on 'exit', (code, signal) =>
         @emit 'gcc_exit', {code, signal}
         return unless code is 0
-        console.log "program built"
+        #console.log "program built"
         @prog = spawn "./#{@binFile}", args[0...args.length - 1]
         @prog.stdout.on 'data', (data)  => 
           @emit 'stdout', data

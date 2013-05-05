@@ -26,7 +26,49 @@ However it is already on NPM repository because:
 
 Thank you for your understanding!
 
-## Demo 1
+## Documentation
+
+### Options
+
+You can pass parameters to cello.
+For the moment only a few are supported:
+
+* indent: the indentation string to use (eg. "   " or "\t")
+* debug: some debug messages - for development only
+* evaluate: a func which return a list of JS references to interpret BEFORE code generation
+* ignore: a func which return a list of JS references to ignore (won't be translated to C)
+
+Example:
+
+```CoffeeScript
+src = C(indent: "  ", debug: yes) -> 
+  main = ->
+```
+
+### Compiling
+
+Experimental support of gcc is implemented:
+
+```CoffeeScript
+{C, run} = require 'cello'
+src = C -> main = -> printf "hello world"
+run src, (output) -> console.log "output: #{output}"
+```
+
+
+### Communicating
+
+You can execute a program, and write/read from it, as it was a bi-directional stream:
+
+```CoffeeScript
+{C, run} = require 'cello'
+src = C -> main = -> printf "hello world"
+run src, (output) -> console.log "output: #{output}"
+```
+
+## Demos
+
+### Demo 1
 
 ```coffeescript
 { C, run } = require 'cello'
@@ -56,7 +98,7 @@ int main() {
 
 Then it will run and print 'hello'. Magic? yes. 
 
-## Demo 2
+### Demo 2
 
 ```CoffeeScript
 {C, run} = require 'cello'
@@ -170,35 +212,6 @@ program.on 'stderr',  (buff) ->  console.log "demo.stderr: " + buff.toString()
 ```
 
 
-## Documentation
-
-### Options
-
-You can pass parameters to cello.
-For the moment only a few are supported:
-
-* indent: the indentation string to use (eg. "   " or "\t")
-* debug: some debug messages - for development only
-* evaluate: a func which return a list of JS references to interpret BEFORE code generation
-* ignore: a func which return a list of JS references to ignore (won't be translated to C)
-
-Example:
-
-```CoffeeScript
-src = C(indent: "  ", debug: yes) -> 
-  main = ->
-```
-
-### Compiling
-
-Experimental support of gcc is implemented:
-
-```CoffeeScript
-{C, run} = require 'cello'
-src = C -> main = -> printf "hello world"
-run src, (output) -> console.log "output: #{output}"
-```
-
 ## WISHLIST FOR SANTA
 
  * support for inline C statements, as lone strings (eg. """(void *) i;""")
@@ -206,9 +219,8 @@ run src, (output) -> console.log "output: #{output}"
  * support for new (either malloc, or just ignore it?, but at least it will feel a bit more natural)
  * support for function pointers allocation
  * support for &? (altough it's mostly used for func pointers, and it is implicit)
- * find an elegant solution to support void (which is forbidden in Coffee/JavaScript)
+ * find a more elegant solution than using 'Void' as alias of 'void'?
  * find an elegant solution to support const (which is forbidden in Coffee/JavaScript)
- * support for NULL
  * support typedef
  * support struct
  * add more doc (eg. the if / while example)
@@ -216,11 +228,19 @@ run src, (output) -> console.log "output: #{output}"
  * support pointer casting
  * Type inference (eg. that "i = 0" will convert to "int i = 0")
  * Implement ALL C language features
- * complete unit tests
+ * more unit tests
+ * more CoffeeScript magic (eg. doing more implicit stuff such as: x = y for x in [0...2])
 
 ## Changelog
 
-#### 0.0.8
+#### 0.1.0
+
+ * added a new Program class
+ * support for bi-directional communication using unix pipes
+ 
+
+#### 0.0.9 - unreleased
+#### 0.0.8 - unreleased
 
  * Support for include 'test.h' and include '<stdlib.h>'
  
